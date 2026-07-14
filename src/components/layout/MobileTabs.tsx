@@ -1,13 +1,14 @@
-import { ListTodo, TrendingUp, Briefcase } from 'lucide-react';
+import { ListTodo, TrendingUp, CalendarRange, Briefcase } from 'lucide-react';
 
 interface MobileTabsProps {
   activeTab: string;
-  setActiveTab: (tab: 'tasks' | 'progress' | 'accounts') => void;
+  setActiveTab: (tab: 'tasks' | 'progress' | 'schedule' | 'accounts') => void;
 }
 
 const TABS = [
   { id: 'tasks' as const, label: 'Tareas', Icon: ListTodo },
   { id: 'progress' as const, label: 'Progreso', Icon: TrendingUp },
+  { id: 'schedule' as const, label: 'Cronograma', Icon: CalendarRange },
   { id: 'accounts' as const, label: 'Cuentas', Icon: Briefcase },
 ];
 
@@ -19,7 +20,7 @@ export function MobileTabs({ activeTab, setActiveTab }: MobileTabsProps) {
         <button
           key={id}
           onClick={() => setActiveTab(id)}
-          className={`flex-1 flex flex-col items-center gap-0.5 py-2 rounded-full text-[11px] font-medium transition-all ${
+          className={`flex-1 flex flex-col items-center gap-0.5 py-2 rounded-full text-[10px] font-medium transition-all ${
             activeTab === id
               ? 'bg-gradient-to-r from-purple-600/80 to-blue-600/80 text-white shadow-[0_0_12px_rgba(147,51,234,0.35)]'
               : 'text-slate-400 hover:text-white'

@@ -1,15 +1,17 @@
-import { LogOut, FileText, Copy } from 'lucide-react';
+import { LogOut, FileText, Copy, FileJson, Upload } from 'lucide-react';
 import { Login } from '../Login';
 
 interface MobileMenuProps {
   isAuthenticated: boolean;
   activeTab: string;
-  setActiveTab: (tab: 'tasks' | 'progress' | 'accounts') => void;
+  setActiveTab: (tab: 'tasks' | 'progress' | 'schedule' | 'accounts') => void;
   mobileMenuOpen: boolean;
   setMobileMenuOpen: (open: boolean) => void;
   handleLogout: () => void;
   onExportPDF: () => void;
   onCopyReport: () => void;
+  onExportProject: () => void;
+  onImportProject: () => void;
 }
 
 export function MobileMenu({
@@ -20,7 +22,9 @@ export function MobileMenu({
   setMobileMenuOpen,
   handleLogout,
   onExportPDF,
-  onCopyReport
+  onCopyReport,
+  onExportProject,
+  onImportProject
 }: MobileMenuProps) {
   if (!mobileMenuOpen) return null;
 
@@ -34,13 +38,19 @@ export function MobileMenu({
         >
           Mis Tareas
         </button>
-        <button 
+        <button
           onClick={() => { setActiveTab('progress'); setMobileMenuOpen(false); }}
           className={`text-left px-4 py-3 rounded-xl text-sm font-medium transition-colors ${activeTab === 'progress' ? 'bg-gradient-to-r from-purple-600/80 to-blue-600/80 text-white shadow-[0_0_15px_rgba(147,51,234,0.3)] border border-white/10' : 'text-slate-300 hover:bg-white/5'}`}
         >
           Progreso
         </button>
-        <button 
+        <button
+          onClick={() => { setActiveTab('schedule'); setMobileMenuOpen(false); }}
+          className={`text-left px-4 py-3 rounded-xl text-sm font-medium transition-colors ${activeTab === 'schedule' ? 'bg-gradient-to-r from-purple-600/80 to-blue-600/80 text-white shadow-[0_0_15px_rgba(147,51,234,0.3)] border border-white/10' : 'text-slate-300 hover:bg-white/5'}`}
+        >
+          Cronograma
+        </button>
+        <button
           onClick={() => { setActiveTab('accounts'); setMobileMenuOpen(false); }}
           className={`text-left px-4 py-3 rounded-xl text-sm font-medium transition-colors ${activeTab === 'accounts' ? 'bg-gradient-to-r from-purple-600/80 to-blue-600/80 text-white shadow-[0_0_15px_rgba(147,51,234,0.3)] border border-white/10' : 'text-slate-300 hover:bg-white/5'}`}
         >
@@ -56,11 +66,25 @@ export function MobileMenu({
           <FileText size={16} className="text-purple-400" /> Exportar PDF
         </button>
         
-        <button 
+        <button
           onClick={() => { onCopyReport(); setMobileMenuOpen(false); }}
           className="text-left px-4 py-3 rounded-xl text-sm font-medium text-slate-300 hover:bg-white/5 flex items-center gap-2"
         >
           <Copy size={16} className="text-cyan-400" /> Copiar Informe
+        </button>
+
+        <button
+          onClick={() => { onExportProject(); setMobileMenuOpen(false); }}
+          className="text-left px-4 py-3 rounded-xl text-sm font-medium text-slate-300 hover:bg-white/5 flex items-center gap-2"
+        >
+          <FileJson size={16} className="text-emerald-400" /> Exportar proyecto (JSON)
+        </button>
+
+        <button
+          onClick={() => { onImportProject(); setMobileMenuOpen(false); }}
+          className="text-left px-4 py-3 rounded-xl text-sm font-medium text-slate-300 hover:bg-white/5 flex items-center gap-2"
+        >
+          <Upload size={16} className="text-amber-400" /> Importar proyecto (JSON)
         </button>
 
         {isAuthenticated && (
