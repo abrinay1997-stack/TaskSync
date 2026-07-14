@@ -1,5 +1,6 @@
 import { Task } from '../types';
 import { getAccessToken } from './auth';
+import { db } from './db';
 
 export const syncTaskToCalendar = async (task: Task): Promise<string | null> => {
   const token = await getAccessToken();
@@ -37,6 +38,44 @@ export const syncTaskToCalendar = async (task: Task): Promise<string | null> => 
     console.error('Error syncing to calendar:', error);
     return null;
   }
+};
+
+export interface SyncResult {
+  synced: number;
+  failed: number;
+  alreadySynced: number;
+}
+
+/**
+ * Syncs on demand every pending task that hasn't been pushed to Google Calendar
+ * yet, and records the created event id back on each task.
+ */
+export const syncPendingTasksToCalendar = async (tasks: Task[]): Promise<SyncResult> => {
+  const token = await getAccessToken();
+  if (!token) throw new Error('Conecta tu cuenta de Google antes de sincronizar.');
+
+  const result: SyncResult = { synced: 0, failed: 0, alreadySynced: 0 };
+
+  for (const task of tasks) {
+    if (task.completed) continue;
+    if (task.syncedToCalendar || task.calendarEventId) {
+      result.alreadySynced++;
+      continue;
+    }
+    try {
+      const eventId = await syncTaskToCalendar(task);
+      if (eventId) {
+        await db.tasks.update(task.id, { syncedToCalendar: true, calendarEventId: eventId });
+        result.synced++;
+      } else {
+        result.failed++;
+      }
+    } catch {
+      result.failed++;
+    }
+  }
+
+  return result;
 };
 
 export const removeTaskFromCalendar = async (eventId: string) => {

@@ -30,7 +30,6 @@ export default async (req: Request): Promise<Response> => {
       model: TASK_PLANNER_MODEL,
       temperature: 0.6,
       max_tokens: TASK_PLANNER_MAX_TOKENS,
-      response_format: { type: 'json_object' },
     });
 
     const tasks = parsePlannedTasks(completion.choices[0]?.message?.content || '');
