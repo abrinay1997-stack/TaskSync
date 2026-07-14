@@ -13,11 +13,12 @@ export function TaskList({ tasks, accounts = [], onTaskUpdate }: TaskListProps) 
       {tasks.map((task) => {
         const account = accounts.find(a => a.id === task.accountId);
         return (
-          <TaskItem 
-            key={task.id} 
-            task={task} 
-            account={account} 
-            onTaskUpdate={onTaskUpdate} 
+          <TaskItem
+            key={task.id}
+            task={task}
+            account={account}
+            accounts={accounts}
+            onTaskUpdate={onTaskUpdate}
           />
         );
       })}

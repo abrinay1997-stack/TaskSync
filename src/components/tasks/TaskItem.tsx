@@ -1,17 +1,31 @@
+import React, { useState } from 'react';
 import { Task, Account } from '../../types';
 import { db } from '../../lib/db';
 import { removeTaskFromCalendar } from '../../lib/calendar';
-import { Calendar, CheckCircle, Trash2, Building, Briefcase } from 'lucide-react';
+import { Calendar, CheckCircle, Trash2, Building, Briefcase, Pencil, Check, X } from 'lucide-react';
 import { format } from 'date-fns';
 import { es } from 'date-fns/locale';
 
 interface TaskItemProps {
   task: Task;
   account?: Account;
+  accounts?: Account[];
   onTaskUpdate: () => void;
 }
 
-export function TaskItem({ task, account, onTaskUpdate }: TaskItemProps) {
+const toInputValue = (dueDate: string) => {
+  const d = new Date(dueDate);
+  return isNaN(d.getTime()) ? '' : format(d, "yyyy-MM-dd'T'HH:mm");
+};
+
+export function TaskItem({ task, account, accounts = [], onTaskUpdate }: TaskItemProps) {
+  const [isEditing, setIsEditing] = useState(false);
+  const [editTitle, setEditTitle] = useState(task.title);
+  const [editDescription, setEditDescription] = useState(task.description || '');
+  const [editDueDate, setEditDueDate] = useState(toInputValue(task.dueDate));
+  const [editPriority, setEditPriority] = useState<'baja' | 'media' | 'alta'>(task.priority || 'media');
+  const [editAccountId, setEditAccountId] = useState(task.accountId || '');
+
   const toggleStatus = async () => {
     await db.tasks.update(task.id, { completed: !task.completed });
     onTaskUpdate();
@@ -21,24 +35,124 @@ export function TaskItem({ task, account, onTaskUpdate }: TaskItemProps) {
     if (task.calendarEventId) {
       removeTaskFromCalendar(task.calendarEventId).catch(console.error);
     }
-    
+
     await db.tasks.delete(task.id);
+    onTaskUpdate();
+  };
+
+  const startEdit = () => {
+    setEditTitle(task.title);
+    setEditDescription(task.description || '');
+    setEditDueDate(toInputValue(task.dueDate));
+    setEditPriority(task.priority || 'media');
+    setEditAccountId(task.accountId || '');
+    setIsEditing(true);
+  };
+
+  const saveEdit = async () => {
+    if (!editTitle.trim() || !editDueDate) return;
+    const dueDateChanged = editDueDate !== toInputValue(task.dueDate);
+    await db.tasks.update(task.id, {
+      title: editTitle.trim(),
+      description: editDescription.trim() || undefined,
+      dueDate: editDueDate,
+      priority: editPriority,
+      accountId: editAccountId || undefined,
+      // A rescheduled task needs to be pushed to Google Calendar again.
+      ...(dueDateChanged && task.syncedToCalendar
+        ? { syncedToCalendar: false, calendarEventId: undefined }
+        : {}),
+    });
+    if (dueDateChanged && task.calendarEventId) {
+      removeTaskFromCalendar(task.calendarEventId).catch(console.error);
+    }
+    setIsEditing(false);
     onTaskUpdate();
   };
 
   const isPastDue = new Date(task.dueDate) < new Date() && !task.completed;
 
+  if (isEditing) {
+    return (
+      <div className="p-4 rounded-2xl border border-purple-500/40 bg-white/[0.04] backdrop-blur-md shadow-[0_0_15px_rgba(168,85,247,0.1)] space-y-3">
+        <input
+          type="text"
+          value={editTitle}
+          onChange={(e) => setEditTitle(e.target.value)}
+          placeholder="Título de la tarea"
+          autoFocus
+          className="w-full bg-black/20 border border-white/10 text-white placeholder-slate-500 px-3 py-2 rounded-xl focus:outline-none focus:border-purple-500/50 focus:ring-1 focus:ring-purple-500/50 text-sm transition-all"
+        />
+        <textarea
+          value={editDescription}
+          onChange={(e) => setEditDescription(e.target.value)}
+          placeholder="Descripción (opcional)"
+          className="w-full bg-black/20 border border-white/10 text-white placeholder-slate-500 px-3 py-2 rounded-xl focus:outline-none focus:border-purple-500/50 focus:ring-1 focus:ring-purple-500/50 text-sm h-[60px] resize-none transition-all"
+        />
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
+          <input
+            type="datetime-local"
+            value={editDueDate}
+            onChange={(e) => setEditDueDate(e.target.value)}
+            className="w-full bg-black/20 border border-white/10 text-white px-3 py-2 rounded-xl focus:outline-none focus:border-purple-500/50 focus:ring-1 focus:ring-purple-500/50 text-sm [color-scheme:dark] transition-all"
+          />
+          <select
+            value={editPriority}
+            onChange={(e) => setEditPriority(e.target.value as 'baja' | 'media' | 'alta')}
+            className="w-full bg-black/20 border border-white/10 text-white px-3 py-2 rounded-xl focus:outline-none focus:border-purple-500/50 focus:ring-1 focus:ring-purple-500/50 text-sm transition-all appearance-none"
+          >
+            <option value="baja" className="bg-slate-900 text-slate-300">Prioridad: Baja</option>
+            <option value="media" className="bg-slate-900 text-yellow-300">Prioridad: Media</option>
+            <option value="alta" className="bg-slate-900 text-pink-400">Prioridad: Alta</option>
+          </select>
+          <select
+            value={editAccountId}
+            onChange={(e) => setEditAccountId(e.target.value)}
+            className="w-full bg-black/20 border border-white/10 text-white px-3 py-2 rounded-xl focus:outline-none focus:border-purple-500/50 focus:ring-1 focus:ring-purple-500/50 text-sm transition-all appearance-none"
+          >
+            <option value="" className="bg-slate-900">Sin cuenta asociada</option>
+            <optgroup label="Cuentas Internas" className="bg-slate-900 text-purple-300">
+              {accounts.filter(a => a.type === 'internal').map(acc => (
+                <option key={acc.id} value={acc.id} className="text-white">{acc.name}</option>
+              ))}
+            </optgroup>
+            <optgroup label="Clientes (Externas)" className="bg-slate-900 text-cyan-300">
+              {accounts.filter(a => a.type === 'external').map(acc => (
+                <option key={acc.id} value={acc.id} className="text-white">{acc.name}</option>
+              ))}
+            </optgroup>
+          </select>
+        </div>
+        <div className="flex justify-end gap-2 pt-1">
+          <button
+            onClick={() => setIsEditing(false)}
+            className="px-3 py-1.5 text-xs text-slate-400 hover:text-white hover:bg-white/5 rounded-lg transition-colors flex items-center gap-1"
+          >
+            <X size={14} /> Cancelar
+          </button>
+          <button
+            onClick={saveEdit}
+            disabled={!editTitle.trim() || !editDueDate}
+            className="px-4 py-1.5 text-xs font-medium text-white bg-gradient-to-r from-purple-600/80 to-blue-600/80 hover:from-purple-500 hover:to-blue-500 rounded-lg transition-all flex items-center gap-1 disabled:opacity-50"
+          >
+            <Check size={14} /> Guardar
+          </button>
+        </div>
+      </div>
+    );
+  }
+
   return (
-    <div 
+    <div
       className={`flex items-center gap-4 p-4 rounded-2xl border transition-all group backdrop-blur-md ${
-        task.completed 
-          ? 'opacity-60 bg-white/[0.01] border-white/5' 
-          : isPastDue 
-              ? 'bg-pink-500/5 border-pink-500/20 shadow-[0_0_15px_rgba(236,72,153,0.05)]' 
+        task.completed
+          ? 'opacity-60 bg-white/[0.01] border-white/5'
+          : isPastDue
+              ? 'bg-pink-500/5 border-pink-500/20 shadow-[0_0_15px_rgba(236,72,153,0.05)]'
               : 'bg-white/[0.03] border-white/10 hover:border-purple-500/30 hover:bg-white/[0.05] hover:shadow-[0_4px_20px_rgba(168,85,247,0.1)]'
       }`}
     >
-      <button 
+      <button
         onClick={(e) => { e.stopPropagation(); toggleStatus(); }}
         className="flex-shrink-0 focus:outline-none"
       >
@@ -51,17 +165,20 @@ export function TaskItem({ task, account, onTaskUpdate }: TaskItemProps) {
           </div>
         )}
       </button>
-      
+
       <div className="flex-1 min-w-0">
         <div className={`text-base font-medium truncate drop-shadow-sm ${task.completed ? 'text-slate-400 line-through' : 'text-slate-100'}`}>
           {task.title}
         </div>
-        
+        {task.description && !task.completed && (
+          <div className="text-xs text-slate-500 truncate mt-0.5">{task.description}</div>
+        )}
+
         <div className="flex items-center flex-wrap mt-1.5 text-xs gap-2">
           {task.priority && (
             <div className={`flex items-center px-2 py-0.5 rounded border capitalize ${
-              task.priority === 'alta' ? 'text-pink-400 bg-pink-500/10 border-pink-500/20' : 
-              task.priority === 'media' ? 'text-yellow-300 bg-yellow-500/10 border-yellow-500/20' : 
+              task.priority === 'alta' ? 'text-pink-400 bg-pink-500/10 border-pink-500/20' :
+              task.priority === 'media' ? 'text-yellow-300 bg-yellow-500/10 border-yellow-500/20' :
               'text-slate-300 bg-slate-500/10 border-slate-500/20'
             }`}>
               {task.priority}
@@ -71,14 +188,14 @@ export function TaskItem({ task, account, onTaskUpdate }: TaskItemProps) {
           <div className={`flex items-center px-2 py-0.5 rounded border ${isPastDue ? 'text-pink-400 bg-pink-500/10 border-pink-500/20' : task.completed ? 'text-slate-500 bg-white/5 border-white/5' : 'text-slate-300 bg-white/10 border-white/10'}`}>
             {format(new Date(task.dueDate), "d MMM, h:mm a", { locale: es })}
           </div>
-          
+
           {account && (
             <div className={`flex items-center px-2 py-0.5 rounded border ${account.type === 'internal' ? 'text-purple-300 bg-purple-500/10 border-purple-500/20' : 'text-cyan-300 bg-cyan-500/10 border-cyan-500/20'}`}>
               {account.type === 'internal' ? <Building size={12} className="mr-1" /> : <Briefcase size={12} className="mr-1" />}
               <span className="truncate max-w-[120px]">{account.name}</span>
             </div>
           )}
-          
+
           {task.syncedToCalendar && (
             <div className="flex items-center text-cyan-400 bg-cyan-500/10 border border-cyan-500/20 px-2 py-0.5 rounded">
               <Calendar size={12} className="mr-1" />
@@ -87,14 +204,25 @@ export function TaskItem({ task, account, onTaskUpdate }: TaskItemProps) {
           )}
         </div>
       </div>
-      
-      <button 
-        onClick={(e) => { e.stopPropagation(); deleteTask(); }}
-        className="p-2 text-slate-500 hover:text-pink-400 hover:bg-pink-500/10 rounded-xl transition-colors focus:outline-none flex-shrink-0 opacity-100 md:opacity-0 group-hover:opacity-100"
-        aria-label="Eliminar tarea"
-      >
-        <Trash2 size={16} />
-      </button>
+
+      <div className="flex items-center gap-1 flex-shrink-0 opacity-100 md:opacity-0 group-hover:opacity-100 transition-opacity">
+        <button
+          onClick={(e) => { e.stopPropagation(); startEdit(); }}
+          className="p-2 text-slate-500 hover:text-blue-400 hover:bg-blue-500/10 rounded-xl transition-colors focus:outline-none"
+          aria-label="Editar tarea"
+          title="Editar tarea"
+        >
+          <Pencil size={16} />
+        </button>
+        <button
+          onClick={(e) => { e.stopPropagation(); deleteTask(); }}
+          className="p-2 text-slate-500 hover:text-pink-400 hover:bg-pink-500/10 rounded-xl transition-colors focus:outline-none"
+          aria-label="Eliminar tarea"
+          title="Eliminar tarea"
+        >
+          <Trash2 size={16} />
+        </button>
+      </div>
     </div>
   );
 }

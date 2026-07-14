@@ -30,7 +30,7 @@ export function Header({
   return (
     <header className="flex justify-between items-end pb-4 mb-4 border-b border-white/5 relative z-50">
       <div>
-        <h1 className="text-3xl font-bold text-white">Hola, {user ? user.displayName?.split(' ')[0] : 'Brian'}</h1>
+        <h1 className="text-3xl font-bold text-white">TaskSync</h1>
         <p className="text-slate-400 text-sm mt-1">Panel de Productividad • {new Date().toLocaleDateString('es-ES', { weekday: 'long', day: 'numeric', month: 'long' })}</p>
       </div>
       <div className="flex gap-4 items-center">
