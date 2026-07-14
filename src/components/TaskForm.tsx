@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import React, { useState } from 'react';
 import { db } from '../lib/db';
 import { syncTaskToCalendar } from '../lib/calendar';
 import { Calendar, Plus } from 'lucide-react';

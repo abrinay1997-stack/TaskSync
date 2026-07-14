@@ -34,7 +34,7 @@ async function startServer() {
             content: `Aquí están mis tareas actuales: ${JSON.stringify(tasks)}. Contexto extra: ${context || 'Ninguno'}`
           }
         ],
-        model: "mixtral-8x7b-32768", // Groq fast model
+        model: "llama-3.3-70b-versatile", // Groq production model
         temperature: 0.7,
         max_tokens: 256,
       });

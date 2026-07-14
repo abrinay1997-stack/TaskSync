@@ -1,5 +1,5 @@
 import { Briefcase, LogOut, Menu, X } from 'lucide-react';
-import { User } from 'firebase/auth';
+import { User } from '../../types';
 import { ExportMenu } from './ExportMenu';
 
 interface HeaderProps {
