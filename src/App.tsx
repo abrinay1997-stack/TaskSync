@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { initAuth, logout } from './lib/auth';
+import { initAuth, logout, googleSignIn } from './lib/auth';
 import { User } from './types';
 
 import { useTasks } from './hooks/useTasks';
@@ -42,6 +42,10 @@ export default function App() {
     await logout();
   };
 
+  const handleLogin = () => {
+    googleSignIn();
+  };
+
   const handleExportPDF = () => {
     exportToPDF(allTasks);
   };
@@ -54,7 +58,7 @@ export default function App() {
     <div className="min-h-screen bg-[#050508] text-slate-200 flex flex-col font-sans p-4 sm:p-6 lg:p-8 overflow-x-hidden relative selection:bg-purple-500/30">
       <AmbientBackground />
 
-      <Header 
+      <Header
         user={user}
         isAuthenticated={isAuthenticated}
         activeTab={activeTab}
@@ -62,6 +66,7 @@ export default function App() {
         mobileMenuOpen={mobileMenuOpen}
         setMobileMenuOpen={setMobileMenuOpen}
         handleLogout={handleLogout}
+        handleLogin={handleLogin}
         onExportPDF={handleExportPDF}
         onCopyReport={handleCopyReport}
       />
