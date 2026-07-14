@@ -5,10 +5,8 @@ import { DailyTasksCard } from './cards/DailyTasksCard';
 import { DeadlinesCard } from './cards/DeadlinesCard';
 import { CalendarCard } from './cards/CalendarCard';
 import { AIAdvisor } from './AIAdvisor';
-import { AITaskPlanner } from '../accounts/AITaskPlanner';
 import { StatsRow } from './StatsRow';
-import { WeeklyScheduleCard } from './WeeklyScheduleCard';
-import { CaptionGenerator } from './CaptionGenerator';
+import { AIToolsPanel } from './AIToolsPanel';
 
 interface BentoGridProps {
   activeTab: string;
@@ -55,14 +53,8 @@ export function BentoGrid({
         pendingTasks={pendingTasks} 
       />
 
-      <WeeklyScheduleCard allTasks={allTasks} accounts={accounts} />
-
       <div className={`col-span-1 md:col-span-12 ${activeTab === 'tasks' || activeTab === 'progress' ? 'block' : 'hidden md:block'}`}>
-        <CaptionGenerator accounts={accounts} />
-      </div>
-
-      <div className={`col-span-1 md:col-span-12 ${activeTab === 'tasks' || activeTab === 'progress' ? 'block' : 'hidden md:block'}`}>
-        <AITaskPlanner accounts={accounts} />
+        <AIToolsPanel accounts={accounts} />
       </div>
 
       <div className={`col-span-1 md:col-span-12 ${activeTab === 'tasks' || activeTab === 'progress' ? 'block' : 'hidden md:block'}`}>

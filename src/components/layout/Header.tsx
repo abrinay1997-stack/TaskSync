@@ -6,13 +6,15 @@ interface HeaderProps {
   user: User | null;
   isAuthenticated: boolean;
   activeTab: string;
-  setActiveTab: (tab: 'tasks' | 'progress' | 'accounts') => void;
+  setActiveTab: (tab: 'tasks' | 'progress' | 'schedule' | 'accounts') => void;
   mobileMenuOpen: boolean;
   setMobileMenuOpen: (open: boolean) => void;
   handleLogout: () => void;
   handleLogin: () => void;
   onExportPDF: () => void;
   onCopyReport: () => void;
+  onExportProject: () => void;
+  onImportProject: () => void;
 }
 
 export function Header({
@@ -25,7 +27,9 @@ export function Header({
   handleLogout,
   handleLogin,
   onExportPDF,
-  onCopyReport
+  onCopyReport,
+  onExportProject,
+  onImportProject
 }: HeaderProps) {
   return (
     <header className="flex justify-between items-end pb-4 mb-4 border-b border-white/5 relative z-50">
@@ -46,6 +50,16 @@ export function Header({
             Dashboard
           </button>
           <button
+            onClick={() => setActiveTab('schedule')}
+            className={`px-4 py-1.5 rounded-full text-sm font-medium transition-all ${
+              activeTab === 'schedule'
+                ? 'bg-gradient-to-r from-purple-600/80 to-blue-600/80 text-white shadow-[0_0_10px_rgba(147,51,234,0.3)]'
+                : 'text-slate-400 hover:text-white hover:bg-white/5'
+            }`}
+          >
+            Cronograma
+          </button>
+          <button
             onClick={() => setActiveTab('accounts')}
             className={`px-4 py-1.5 rounded-full text-sm font-medium transition-all flex items-center gap-2 ${
               activeTab === 'accounts'
@@ -58,9 +72,11 @@ export function Header({
         </nav>
 
         <div className="flex gap-3 items-center border-l border-white/10 pl-4">
-          <ExportMenu 
+          <ExportMenu
             onExportPDF={onExportPDF}
             onCopyReport={onCopyReport}
+            onExportProject={onExportProject}
+            onImportProject={onImportProject}
           />
           
           {isAuthenticated ? (

@@ -1,12 +1,14 @@
 import { useState, useRef, useEffect } from 'react';
-import { Download, FileText, Copy, ChevronDown } from 'lucide-react';
+import { Download, FileText, Copy, ChevronDown, FileJson, Upload } from 'lucide-react';
 
 interface ExportMenuProps {
   onExportPDF: () => void;
   onCopyReport: () => void;
+  onExportProject: () => void;
+  onImportProject: () => void;
 }
 
-export function ExportMenu({ onExportPDF, onCopyReport }: ExportMenuProps) {
+export function ExportMenu({ onExportPDF, onCopyReport, onExportProject, onImportProject }: ExportMenuProps) {
   const [isOpen, setIsOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
 
@@ -54,6 +56,27 @@ export function ExportMenu({ onExportPDF, onCopyReport }: ExportMenuProps) {
               className="w-full text-left px-4 py-2 text-sm text-slate-300 hover:text-white hover:bg-white/5 flex items-center gap-2 transition-colors"
             >
               <Copy size={16} className="text-cyan-400" /> Copiar Informe
+            </button>
+
+            <div className="h-px w-full bg-white/10 my-1"></div>
+
+            <button
+              onClick={() => {
+                onExportProject();
+                setIsOpen(false);
+              }}
+              className="w-full text-left px-4 py-2 text-sm text-slate-300 hover:text-white hover:bg-white/5 flex items-center gap-2 transition-colors"
+            >
+              <FileJson size={16} className="text-emerald-400" /> Exportar proyecto (JSON)
+            </button>
+            <button
+              onClick={() => {
+                onImportProject();
+                setIsOpen(false);
+              }}
+              className="w-full text-left px-4 py-2 text-sm text-slate-300 hover:text-white hover:bg-white/5 flex items-center gap-2 transition-colors"
+            >
+              <Upload size={16} className="text-amber-400" /> Importar proyecto (JSON)
             </button>
           </div>
         </div>
