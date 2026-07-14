@@ -42,7 +42,7 @@ export function AccountItem({ account, icon, iconBgColor, iconTextColor }: Accou
           type="text"
           value={editName}
           onChange={(e) => setEditName(e.target.value)}
-          className="flex-1 bg-black/20 border border-white/10 text-white px-3 py-1.5 rounded-lg focus:outline-none focus:border-purple-500/50 focus:ring-1 focus:ring-purple-500/50 text-sm transition-all mr-2"
+          className="flex-1 bg-black border border-white/10 text-white px-3 py-1.5 rounded-lg focus:outline-none focus:border-cyan-400/60 focus:ring-1 focus:ring-cyan-400/40 focus:shadow-[0_0_14px_rgba(6,182,212,0.25)] text-sm transition-all mr-2"
           autoFocus
           onKeyDown={(e) => e.key === 'Enter' && saveEdit()}
         />

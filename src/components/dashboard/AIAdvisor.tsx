@@ -43,7 +43,8 @@ export function AIAdvisor({ tasks }: AIAdvisorProps) {
   };
 
   return (
-    <section className="col-span-1 md:col-span-12 bg-gradient-to-br from-indigo-500/10 to-purple-500/10 backdrop-blur-2xl border border-indigo-500/20 shadow-lg rounded-3xl p-6">
+    <section className="col-span-1 md:col-span-12 ai-card">
+      <div className="ai-card-inner p-6">
       <div className="flex items-center justify-between mb-4">
         <h2 className="text-lg font-semibold text-white flex items-center gap-2" title="Consejos de productividad">
           <span className="w-10 h-10 rounded-full bg-indigo-500/15 border border-indigo-500/30 flex items-center justify-center shadow-[0_0_12px_rgba(99,102,241,0.25)]">
@@ -53,7 +54,7 @@ export function AIAdvisor({ tasks }: AIAdvisorProps) {
         <button
           onClick={getAdvice}
           disabled={loading}
-          className="bg-indigo-500/20 hover:bg-indigo-500/30 text-indigo-300 px-4 py-2 rounded-xl text-sm font-medium transition-all flex items-center gap-2 border border-indigo-500/30 disabled:opacity-50"
+          className="bg-indigo-500/20 hover:bg-indigo-500/30 text-indigo-300 px-5 py-2 rounded-full text-sm font-medium transition-all flex items-center gap-2 border border-indigo-500/30 disabled:opacity-50"
         >
           {loading ? <Loader2 size={16} className="animate-spin" /> : 'Generar Consejos'}
         </button>
@@ -76,6 +77,7 @@ export function AIAdvisor({ tasks }: AIAdvisorProps) {
           Presiona "Generar Consejos" para que la IA analice tus tareas y te sugiera cómo organizar tu día.
         </p>
       )}
+      </div>
     </section>
   );
 }

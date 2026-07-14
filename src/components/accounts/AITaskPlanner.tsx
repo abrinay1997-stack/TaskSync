@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Sparkles, Loader2, Wand2, Check, Trash2, CalendarClock } from 'lucide-react';
+import { Sparkles, Loader2, Check, Trash2, CalendarClock } from 'lucide-react';
 import { addDays, format } from 'date-fns';
 import { Account, Task } from '../../types';
 import { db } from '../../lib/db';
@@ -133,9 +133,10 @@ export function AITaskPlanner({ accounts }: AITaskPlannerProps) {
   };
 
   return (
-    <div className="bg-gradient-to-br from-indigo-500/10 to-purple-500/10 backdrop-blur-2xl border border-indigo-500/20 shadow-[0_8px_32px_0_rgba(0,0,0,0.3)] rounded-3xl p-6">
+    <div className="ai-card">
+      <div className="ai-card-inner p-6">
       <div className="flex items-center gap-2 mb-1">
-        <Wand2 className="text-indigo-400" size={22} />
+        <Sparkles className="text-indigo-400" size={22} />
         <h2 className="text-xl font-semibold text-white drop-shadow-md">Planificador de Contenido con IA</h2>
       </div>
       <p className="text-xs text-slate-400 mb-5">
@@ -148,7 +149,7 @@ export function AITaskPlanner({ accounts }: AITaskPlannerProps) {
         <select
           value={accountId}
           onChange={(e) => setAccountId(e.target.value)}
-          className="w-full bg-black/20 border border-white/10 text-white px-3 py-2 rounded-xl focus:outline-none focus:border-indigo-500/50 focus:ring-1 focus:ring-indigo-500/50 text-sm h-[42px] transition-all appearance-none"
+          className="w-full bg-black border border-white/10 text-white px-3 py-2 rounded-xl focus:outline-none focus:border-cyan-400/60 focus:ring-1 focus:ring-cyan-400/40 focus:shadow-[0_0_14px_rgba(6,182,212,0.25)] text-sm h-[42px] transition-all appearance-none"
         >
           <option value="" className="bg-slate-900">Cliente / cuenta…</option>
           <optgroup label="Clientes (Externas)" className="bg-slate-900">
@@ -168,7 +169,7 @@ export function AITaskPlanner({ accounts }: AITaskPlannerProps) {
           value={instagramUrl}
           onChange={(e) => setInstagramUrl(e.target.value)}
           placeholder="Link de Instagram / redes (opcional)"
-          className="w-full bg-black/20 border border-white/10 text-white placeholder-slate-500 px-3 py-2 rounded-xl focus:outline-none focus:border-indigo-500/50 focus:ring-1 focus:ring-indigo-500/50 text-sm h-[42px] transition-all"
+          className="w-full bg-black border border-white/10 text-white placeholder-slate-500 px-3 py-2 rounded-xl focus:outline-none focus:border-cyan-400/60 focus:ring-1 focus:ring-cyan-400/40 focus:shadow-[0_0_14px_rgba(6,182,212,0.25)] text-sm h-[42px] transition-all"
         />
 
         <input
@@ -176,7 +177,7 @@ export function AITaskPlanner({ accounts }: AITaskPlannerProps) {
           value={niche}
           onChange={(e) => setNiche(e.target.value)}
           placeholder="Nicho / industria (ej: restaurante, moda, gym)"
-          className="w-full bg-black/20 border border-white/10 text-white placeholder-slate-500 px-3 py-2 rounded-xl focus:outline-none focus:border-indigo-500/50 focus:ring-1 focus:ring-indigo-500/50 text-sm h-[42px] transition-all"
+          className="w-full bg-black border border-white/10 text-white placeholder-slate-500 px-3 py-2 rounded-xl focus:outline-none focus:border-cyan-400/60 focus:ring-1 focus:ring-cyan-400/40 focus:shadow-[0_0_14px_rgba(6,182,212,0.25)] text-sm h-[42px] transition-all"
         />
 
         <div className="flex items-center gap-2">
@@ -186,7 +187,7 @@ export function AITaskPlanner({ accounts }: AITaskPlannerProps) {
             value={startDate}
             onChange={(e) => setStartDate(e.target.value)}
             title="Fecha de inicio del plan"
-            className="w-full bg-black/20 border border-white/10 text-white px-3 py-2 rounded-xl focus:outline-none focus:border-indigo-500/50 focus:ring-1 focus:ring-indigo-500/50 text-sm h-[42px] [color-scheme:dark] transition-all"
+            className="w-full bg-black border border-white/10 text-white px-3 py-2 rounded-xl focus:outline-none focus:border-cyan-400/60 focus:ring-1 focus:ring-cyan-400/40 focus:shadow-[0_0_14px_rgba(6,182,212,0.25)] text-sm h-[42px] [color-scheme:dark] transition-all"
           />
         </div>
       </div>
@@ -195,13 +196,13 @@ export function AITaskPlanner({ accounts }: AITaskPlannerProps) {
         value={notes}
         onChange={(e) => setNotes(e.target.value)}
         placeholder="Notas para la IA (objetivos, tono, campañas, productos a destacar…)"
-        className="w-full bg-black/20 border border-white/10 text-white placeholder-slate-500 px-3 py-2 rounded-xl focus:outline-none focus:border-indigo-500/50 focus:ring-1 focus:ring-indigo-500/50 text-sm h-[60px] resize-none transition-all mb-4"
+        className="w-full bg-black border border-white/10 text-white placeholder-slate-500 px-3 py-2 rounded-xl focus:outline-none focus:border-cyan-400/60 focus:ring-1 focus:ring-cyan-400/40 focus:shadow-[0_0_14px_rgba(6,182,212,0.25)] text-sm h-[60px] resize-none transition-all mb-4"
       />
 
       <button
         onClick={handleGenerate}
         disabled={loading || !accountId}
-        className="w-full bg-gradient-to-r from-indigo-500 to-purple-500 hover:from-indigo-400 hover:to-purple-400 text-white font-medium py-2.5 px-4 rounded-xl transition-all text-sm shadow-[0_0_15px_rgba(99,102,241,0.3)] flex items-center justify-center gap-2 disabled:opacity-50"
+        className="w-full bg-gradient-to-r from-indigo-500 to-purple-500 hover:from-indigo-400 hover:to-purple-400 text-white font-medium py-2.5 px-4 rounded-full transition-all text-sm shadow-[0_0_15px_rgba(99,102,241,0.3)] flex items-center justify-center gap-2 disabled:opacity-50"
       >
         {loading ? <Loader2 size={16} className="animate-spin" /> : <Sparkles size={16} />}
         {loading ? 'Generando plan…' : 'Generar plan con IA'}
@@ -258,7 +259,7 @@ export function AITaskPlanner({ accounts }: AITaskPlannerProps) {
                   />
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2 mb-1.5 flex-wrap">
-                      <span className={`text-[10px] font-semibold px-2 py-0.5 rounded-full border ${STAGE_COLORS[t.stage - 1] || STAGE_COLORS[0]}`}>
+                      <span className={`text-[10px] font-mono uppercase tracking-wider px-2.5 py-0.5 rounded-full border ${STAGE_COLORS[t.stage - 1] || STAGE_COLORS[0]}`}>
                         {t.stage}. {t.stageName}
                       </span>
                     </div>
@@ -279,7 +280,7 @@ export function AITaskPlanner({ accounts }: AITaskPlannerProps) {
                       <select
                         value={t.priority}
                         onChange={(e) => updateItem(t.id, { priority: e.target.value as PreviewTask['priority'] })}
-                        className={`bg-black/30 border border-white/10 rounded-lg px-2 py-1 text-xs focus:outline-none appearance-none ${PRIORITY_STYLES[t.priority]}`}
+                        className={`bg-black border border-white/10 rounded-lg px-2 py-1 text-xs focus:outline-none appearance-none ${PRIORITY_STYLES[t.priority]}`}
                       >
                         <option value="alta" className="bg-slate-900 text-pink-400">Alta</option>
                         <option value="media" className="bg-slate-900 text-yellow-300">Media</option>
@@ -289,7 +290,7 @@ export function AITaskPlanner({ accounts }: AITaskPlannerProps) {
                         type="datetime-local"
                         value={t.dueDate}
                         onChange={(e) => updateItem(t.id, { dueDate: e.target.value })}
-                        className="bg-black/30 border border-white/10 rounded-lg px-2 py-1 text-xs text-slate-300 focus:outline-none [color-scheme:dark]"
+                        className="bg-black border border-white/10 rounded-lg px-2 py-1 text-xs text-slate-300 focus:outline-none [color-scheme:dark]"
                       />
                     </div>
                   </div>
@@ -308,12 +309,13 @@ export function AITaskPlanner({ accounts }: AITaskPlannerProps) {
           <button
             onClick={handleSave}
             disabled={selectedForSaveCount === 0}
-            className="w-full mt-4 bg-gradient-to-r from-cyan-500 to-blue-500 hover:from-cyan-400 hover:to-blue-400 text-white font-medium py-2.5 px-4 rounded-xl transition-all text-sm shadow-[0_0_15px_rgba(6,182,212,0.3)] flex items-center justify-center gap-2 disabled:opacity-50"
+            className="w-full mt-4 bg-gradient-to-r from-cyan-500 to-blue-500 hover:from-cyan-400 hover:to-blue-400 text-white font-medium py-2.5 px-4 rounded-full transition-all text-sm shadow-[0_0_15px_rgba(6,182,212,0.3)] flex items-center justify-center gap-2 disabled:opacity-50"
           >
             <Check size={16} /> Agregar {selectedForSaveCount} tarea{selectedForSaveCount === 1 ? '' : 's'} a {selectedAccount?.name || 'la cuenta'}
           </button>
         </div>
       )}
+      </div>
     </div>
   );
 }

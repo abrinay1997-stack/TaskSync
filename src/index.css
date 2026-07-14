@@ -1,1 +1,60 @@
 @import "tailwindcss";
+
+/* "Lumina Sync" design system (from the Stitch project TaskSync Marketing
+   Dashboard): Hanken Grotesk for display/body, JetBrains Mono for labels and
+   metadata, glassmorphism over a #050508 base, purple→blue→cyan accents. */
+@theme {
+  --font-sans: "Hanken Grotesk", ui-sans-serif, system-ui, sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, monospace;
+}
+
+/* "Sincronizado" status: cyan dot with a breathing animation. */
+@keyframes breathe {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.4; transform: scale(0.75); }
+}
+.dot-breathe {
+  animation: breathe 2.4s ease-in-out infinite;
+}
+
+/* Overdue tasks: soft red pulsing border. */
+@keyframes pulse-border {
+  0%, 100% {
+    border-color: rgba(244, 63, 94, 0.45);
+    box-shadow: 0 0 14px rgba(244, 63, 94, 0.12);
+  }
+  50% {
+    border-color: rgba(244, 63, 94, 0.15);
+    box-shadow: 0 0 4px rgba(244, 63, 94, 0.04);
+  }
+}
+.border-overdue {
+  animation: pulse-border 2.2s ease-in-out infinite;
+}
+
+/* AI components: moving gradient border (purple → blue → cyan) + neon glow. */
+@keyframes ai-border {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+.ai-card {
+  position: relative;
+  border-radius: 1.5rem;
+  padding: 1px;
+  background: linear-gradient(
+    120deg,
+    rgba(139, 92, 246, 0.65),
+    rgba(59, 130, 246, 0.35),
+    rgba(6, 182, 212, 0.65),
+    rgba(139, 92, 246, 0.65)
+  );
+  background-size: 300% 300%;
+  animation: ai-border 8s ease infinite;
+  box-shadow: 0 0 20px rgba(139, 92, 246, 0.3);
+}
+.ai-card-inner {
+  border-radius: calc(1.5rem - 1px);
+  background: rgba(10, 10, 15, 0.92);
+  backdrop-filter: blur(20px);
+}
