@@ -1,6 +1,17 @@
 [build]
-  command = "npm run build"
+  command = "npm run build:client"
   publish = "dist"
+
+[functions]
+  directory = "netlify/functions"
+  node_bundler = "esbuild"
+
+# Proxy the app's /api/advisor call to the Netlify Function (server-side Groq).
+# Must come before the SPA catch-all so it is not swallowed by index.html.
+[[redirects]]
+  from = "/api/advisor"
+  to = "/.netlify/functions/advisor"
+  status = 200
 
 [[redirects]]
   from = "/*"
