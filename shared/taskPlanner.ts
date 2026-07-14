@@ -9,7 +9,9 @@
 
 export const TASK_PLANNER_MODEL = 'llama-3.3-70b-versatile';
 
-export const TASK_PLANNER_MAX_TOKENS = 2048;
+// Kept modest so the Groq call comfortably finishes within Netlify's ~10s
+// synchronous function timeout.
+export const TASK_PLANNER_MAX_TOKENS = 1200;
 
 // The agency's fixed content-production pipeline.
 export const PLANNER_STAGES = [
@@ -50,7 +52,7 @@ El flujo de trabajo SIEMPRE sigue estas 5 etapas, en este orden:
 ${PLANNER_STAGES.map((s, i) => `${i + 1}. ${s}`).join('\n')}
 
 Reglas:
-- Genera entre 2 y 3 tareas por cada etapa (10 a 15 tareas en total), ordenadas por etapa.
+- Genera exactamente 2 tareas por cada etapa (10 tareas en total), ordenadas por etapa.
 - Cada tarea debe ser concreta y accionable (empieza con un verbo) y adaptada al nicho del cliente.
 - "priority" debe ser exactamente "alta", "media" o "baja".
 - "dueOffsetDays" es un entero: días desde la fecha de inicio. Las etapas posteriores llevan offsets mayores; distribuye de forma realista a lo largo de ~2 a 4 semanas.

@@ -72,7 +72,15 @@ export function AITaskPlanner({ accounts }: AITaskPlannerProps) {
           instagramUrl,
         }),
       });
-      const data = await response.json();
+
+      let data: any;
+      try {
+        data = await response.json();
+      } catch {
+        throw new Error(
+          `El servidor respondió ${response.status} sin datos válidos (posible timeout). Intenta de nuevo o reduce las notas.`
+        );
+      }
       if (!response.ok) throw new Error(data.error || 'Error al generar el plan.');
 
       const items: PreviewTask[] = (data.tasks || []).map((t: any) => ({

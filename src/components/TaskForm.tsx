@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 import { db } from '../lib/db';
-import { syncTaskToCalendar } from '../lib/calendar';
 import { Calendar, Plus } from 'lucide-react';
 import { Task, Account } from '../types';
 
@@ -16,7 +15,6 @@ export function TaskForm({ onTaskAdded, isAuthenticated, accounts = [] }: TaskFo
   const [dueDate, setDueDate] = useState('');
   const [accountId, setAccountId] = useState('');
   const [priority, setPriority] = useState<'baja' | 'media' | 'alta'>('media');
-  const [syncToCalendar, setSyncToCalendar] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [expanded, setExpanded] = useState(false);
 
@@ -37,21 +35,12 @@ export function TaskForm({ onTaskAdded, isAuthenticated, accounts = [] }: TaskFo
         createdAt: new Date().toISOString(),
       };
 
-      if (syncToCalendar && isAuthenticated) {
-        const eventId = await syncTaskToCalendar(newTask);
-        if (eventId) {
-          newTask.syncedToCalendar = true;
-          newTask.calendarEventId = eventId;
-        }
-      }
-
       await db.tasks.add(newTask);
-      
+
       setTitle('');
       setDescription('');
       setDueDate('');
       setAccountId('');
-      setSyncToCalendar(false);
       setExpanded(false);
       onTaskAdded();
       
@@ -167,26 +156,10 @@ export function TaskForm({ onTaskAdded, isAuthenticated, accounts = [] }: TaskFo
         </div>
 
         <div className="flex items-center justify-between mt-2 pt-2 border-t border-white/5">
-          {isAuthenticated ? (
-            <div className="flex items-center">
-              <input
-                id="sync-calendar"
-                type="checkbox"
-                checked={syncToCalendar}
-                onChange={(e) => setSyncToCalendar(e.target.checked)}
-                className="w-4 h-4 rounded border-white/20 text-purple-600 focus:ring-purple-500 bg-black/20"
-              />
-              <label htmlFor="sync-calendar" className="ml-2 text-xs font-medium text-slate-300 flex items-center cursor-pointer">
-                <Calendar size={14} className="mr-1 text-slate-400" />
-                Sincronizar
-              </label>
-            </div>
-          ) : (
-            <div className="text-xs text-slate-500 flex items-center">
-              <Calendar size={14} className="mr-1" />
-              Inicia sesión para sincronizar
-            </div>
-          )}
+          <div className="text-xs text-slate-500 flex items-center">
+            <Calendar size={14} className="mr-1" />
+            {isAuthenticated ? 'Usa "Sincronizar" en el Calendario' : 'Inicia sesión para sincronizar'}
+          </div>
 
           <button
             type="submit"
