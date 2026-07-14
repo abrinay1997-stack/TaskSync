@@ -17,3 +17,10 @@
   from = "/*"
   to = "/index.html"
   status = 200
+
+# Always revalidate the app shell so users get the latest build immediately
+# (hashed assets under /assets/* remain safely cached by their content hash).
+[[headers]]
+  for = "/index.html"
+  [headers.values]
+    Cache-Control = "public, max-age=0, must-revalidate"
