@@ -5,6 +5,7 @@ import Groq from "groq-sdk";
 import type { ChatCompletionMessageParam } from "groq-sdk/resources/chat/completions";
 import dotenv from "dotenv";
 import { ADVISOR_MODEL, ADVISOR_MAX_TOKENS, buildAdvisorMessages } from "./shared/advisor";
+import { TASK_PLANNER_MODEL, TASK_PLANNER_MAX_TOKENS, buildPlannerMessages, parsePlannedTasks } from "./shared/taskPlanner";
 
 dotenv.config();
 
@@ -36,6 +37,37 @@ async function startServer() {
     } catch (error: any) {
       console.error("AI Advisor error:", error);
       res.status(500).json({ error: error.message || "Error al conectar con la IA." });
+    }
+  });
+
+  // AI Content-Plan generator via Groq (5-stage workflow per client)
+  app.post("/api/generate-tasks", async (req, res) => {
+    try {
+      const apiKey = process.env.GROQ_API_KEY;
+      if (!apiKey) {
+        return res.status(401).json({ error: "GROQ_API_KEY is not configured" });
+      }
+
+      const groq = new Groq({ apiKey });
+      const { clientName, niche, notes, instagramUrl } = req.body;
+
+      const completion = await groq.chat.completions.create({
+        messages: buildPlannerMessages({ clientName, niche, notes, instagramUrl }) as ChatCompletionMessageParam[],
+        model: TASK_PLANNER_MODEL,
+        temperature: 0.6,
+        max_tokens: TASK_PLANNER_MAX_TOKENS,
+        response_format: { type: "json_object" },
+      });
+
+      const tasks = parsePlannedTasks(completion.choices[0]?.message?.content || "");
+      if (tasks.length === 0) {
+        return res.status(502).json({ error: "La IA no generó tareas válidas. Intenta de nuevo." });
+      }
+
+      res.json({ tasks });
+    } catch (error: any) {
+      console.error("Task planner error:", error);
+      res.status(500).json({ error: error.message || "Error al generar el plan." });
     }
   });
 

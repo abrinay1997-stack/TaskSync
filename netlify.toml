@@ -6,11 +6,16 @@
   directory = "netlify/functions"
   node_bundler = "esbuild"
 
-# Proxy the app's /api/advisor call to the Netlify Function (server-side Groq).
-# Must come before the SPA catch-all so it is not swallowed by index.html.
+# Proxy the app's API calls to the Netlify Functions (server-side Groq).
+# Must come before the SPA catch-all so they are not swallowed by index.html.
 [[redirects]]
   from = "/api/advisor"
   to = "/.netlify/functions/advisor"
+  status = 200
+
+[[redirects]]
+  from = "/api/generate-tasks"
+  to = "/.netlify/functions/generate-tasks"
   status = 200
 
 [[redirects]]

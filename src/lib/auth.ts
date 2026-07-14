@@ -35,7 +35,7 @@ interface TokenClient {
 // is the client ID already present in firebase-applet-config.json.
 const CLIENT_ID =
   import.meta.env.VITE_GOOGLE_CLIENT_ID ||
-  '412037134497-sqttj3tksdos9u6tttksfsk0h6ff9lom.apps.googleusercontent.com';
+  '529117690569-hot49dniftkk2prs6jp26pjk82rjvjqd.apps.googleusercontent.com';
 
 // calendar.events lets us create/delete task events; the userinfo scopes give
 // us the signed-in user's name/email/photo.
