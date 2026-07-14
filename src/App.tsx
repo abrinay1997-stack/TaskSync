@@ -15,9 +15,10 @@ import { MobileTabs } from './components/layout/MobileTabs';
 import { BentoGrid } from './components/dashboard/BentoGrid';
 import { AccountsManager } from './components/accounts/AccountsManager';
 import { ScheduleView } from './components/schedule/ScheduleView';
+import { MasterView } from './components/master/MasterView';
 import { Login } from './components/Login';
 
-export type Tab = 'tasks' | 'progress' | 'schedule' | 'accounts';
+export type Tab = 'tasks' | 'progress' | 'schedule' | 'master' | 'accounts';
 
 export default function App() {
   const [user, setUser] = useState<User | null>(null);
@@ -139,6 +140,8 @@ export default function App() {
         </div>
       ) : activeTab === 'schedule' ? (
         <ScheduleView allTasks={allTasks} accounts={accounts} />
+      ) : activeTab === 'master' ? (
+        <MasterView accounts={accounts} />
       ) : (
         <BentoGrid
           activeTab={activeTab}

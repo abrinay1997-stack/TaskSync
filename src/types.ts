@@ -11,6 +11,30 @@ export const PLATFORM_STYLES: Record<Platform, string> = {
 
 export type Recurrence = 'daily' | 'weekly';
 
+export type ContentType = 'post' | 'reel' | 'carrusel';
+export const CONTENT_TYPES: ContentType[] = ['post', 'reel', 'carrusel'];
+
+export type ContentStatus = 'idea' | 'listo' | 'aprobado';
+
+export const CONTENT_STATUS_STYLES: Record<ContentStatus, string> = {
+  idea: 'text-slate-300 bg-slate-500/10 border-slate-500/25',
+  listo: 'text-amber-300 bg-amber-500/10 border-amber-500/25',
+  aprobado: 'text-emerald-300 bg-emerald-500/10 border-emerald-500/25',
+};
+
+export interface ContentItem {
+  id: string;
+  accountId?: string;
+  platform: Platform;
+  type: ContentType;
+  thumbnail?: string; // JPEG data URL (cover image)
+  caption: string;
+  hashtags?: string;
+  publishDate: string; // yyyy-MM-dd
+  status: ContentStatus;
+  createdAt: string;
+}
+
 export interface Task {
   id: string;
   title: string;

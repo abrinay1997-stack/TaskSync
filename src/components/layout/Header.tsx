@@ -1,4 +1,4 @@
-import { Briefcase, LogOut, Menu, X } from 'lucide-react';
+import { Briefcase, LogOut, Menu, X, LayoutGrid } from 'lucide-react';
 import { User } from '../../types';
 import { ExportMenu } from './ExportMenu';
 
@@ -6,7 +6,7 @@ interface HeaderProps {
   user: User | null;
   isAuthenticated: boolean;
   activeTab: string;
-  setActiveTab: (tab: 'tasks' | 'progress' | 'schedule' | 'accounts') => void;
+  setActiveTab: (tab: 'tasks' | 'progress' | 'schedule' | 'master' | 'accounts') => void;
   mobileMenuOpen: boolean;
   setMobileMenuOpen: (open: boolean) => void;
   handleLogout: () => void;
@@ -58,6 +58,16 @@ export function Header({
             }`}
           >
             Cronograma
+          </button>
+          <button
+            onClick={() => setActiveTab('master')}
+            className={`px-4 py-1.5 rounded-full text-sm font-medium transition-all flex items-center gap-2 ${
+              activeTab === 'master'
+                ? 'bg-gradient-to-r from-purple-600/80 to-blue-600/80 text-white shadow-[0_0_10px_rgba(147,51,234,0.3)]'
+                : 'text-slate-400 hover:text-white hover:bg-white/5'
+            }`}
+          >
+            <LayoutGrid size={14} /> Master
           </button>
           <button
             onClick={() => setActiveTab('accounts')}
