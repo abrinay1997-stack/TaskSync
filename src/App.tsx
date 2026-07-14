@@ -95,7 +95,7 @@ export default function App() {
 
       {activeTab === 'accounts' ? (
         <div className="flex-1 relative z-10 w-full max-w-5xl mx-auto">
-          <AccountsManager accounts={accounts} />
+          <AccountsManager accounts={accounts} allTasks={allTasks} />
         </div>
       ) : (
         <BentoGrid 

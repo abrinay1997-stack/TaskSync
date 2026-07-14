@@ -19,6 +19,11 @@
   status = 200
 
 [[redirects]]
+  from = "/api/generate-caption"
+  to = "/.netlify/functions/generate-caption"
+  status = 200
+
+[[redirects]]
   from = "/*"
   to = "/index.html"
   status = 200

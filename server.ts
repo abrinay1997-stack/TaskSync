@@ -6,6 +6,7 @@ import type { ChatCompletionMessageParam } from "groq-sdk/resources/chat/complet
 import dotenv from "dotenv";
 import { ADVISOR_MODEL, ADVISOR_MAX_TOKENS, buildAdvisorMessages } from "./shared/advisor";
 import { TASK_PLANNER_MODEL, TASK_PLANNER_MAX_TOKENS, buildPlannerMessages, parsePlannedTasks } from "./shared/taskPlanner";
+import { CAPTION_MODEL, CAPTION_MAX_TOKENS, buildCaptionMessages, parseCaptionResult } from "./shared/captionGenerator";
 
 dotenv.config();
 
@@ -67,6 +68,39 @@ async function startServer() {
     } catch (error: any) {
       console.error("Task planner error:", error);
       res.status(500).json({ error: error.message || "Error al generar el plan." });
+    }
+  });
+
+  // AI caption/title/hashtag generator via Groq
+  app.post("/api/generate-caption", async (req, res) => {
+    try {
+      const apiKey = process.env.GROQ_API_KEY;
+      if (!apiKey) {
+        return res.status(401).json({ error: "GROQ_API_KEY is not configured" });
+      }
+
+      const { topic, platform, clientName, niche, tone } = req.body;
+      if (!topic || typeof topic !== "string") {
+        return res.status(400).json({ error: "Falta el tema del post." });
+      }
+
+      const groq = new Groq({ apiKey });
+      const completion = await groq.chat.completions.create({
+        messages: buildCaptionMessages({ topic, platform, clientName, niche, tone }) as ChatCompletionMessageParam[],
+        model: CAPTION_MODEL,
+        temperature: 0.8,
+        max_tokens: CAPTION_MAX_TOKENS,
+      });
+
+      const result = parseCaptionResult(completion.choices[0]?.message?.content || "");
+      if (!result) {
+        return res.status(502).json({ error: "La IA no generó un caption válido. Intenta de nuevo." });
+      }
+
+      res.json(result);
+    } catch (error: any) {
+      console.error("Caption generator error:", error);
+      res.status(500).json({ error: error.message || "Error al generar el caption." });
     }
   });
 

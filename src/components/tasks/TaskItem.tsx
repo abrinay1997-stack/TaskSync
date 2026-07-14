@@ -1,9 +1,9 @@
 import React, { useState } from 'react';
-import { Task, Account } from '../../types';
+import { Task, Account, Platform, PLATFORMS, PLATFORM_STYLES, Recurrence } from '../../types';
 import { db } from '../../lib/db';
 import { removeTaskFromCalendar } from '../../lib/calendar';
-import { CheckCircle, Trash2, Building, Briefcase, Pencil, Check, X } from 'lucide-react';
-import { format } from 'date-fns';
+import { CheckCircle, Trash2, Building, Briefcase, Pencil, Check, X, Repeat } from 'lucide-react';
+import { format, addDays } from 'date-fns';
 import { es } from 'date-fns/locale';
 
 interface TaskItemProps {
@@ -25,9 +25,34 @@ export function TaskItem({ task, account, accounts = [], onTaskUpdate }: TaskIte
   const [editDueDate, setEditDueDate] = useState(toInputValue(task.dueDate));
   const [editPriority, setEditPriority] = useState<'baja' | 'media' | 'alta'>(task.priority || 'media');
   const [editAccountId, setEditAccountId] = useState(task.accountId || '');
+  const [editPlatforms, setEditPlatforms] = useState<Platform[]>(task.platforms || []);
+  const [editRecurrence, setEditRecurrence] = useState<'' | Recurrence>(task.recurrence || '');
+
+  const toggleEditPlatform = (p: Platform) => {
+    setEditPlatforms((prev) => (prev.includes(p) ? prev.filter((x) => x !== p) : [...prev, p]));
+  };
 
   const toggleStatus = async () => {
-    await db.tasks.update(task.id, { completed: !task.completed });
+    const completing = !task.completed;
+    await db.tasks.update(task.id, { completed: completing });
+
+    // Completing a recurring task schedules its next occurrence.
+    if (completing && task.recurrence) {
+      const next = addDays(new Date(task.dueDate), task.recurrence === 'daily' ? 1 : 7);
+      await db.tasks.add({
+        id: crypto.randomUUID(),
+        title: task.title,
+        description: task.description,
+        dueDate: format(next, "yyyy-MM-dd'T'HH:mm"),
+        completed: false,
+        accountId: task.accountId,
+        priority: task.priority,
+        platforms: task.platforms,
+        recurrence: task.recurrence,
+        createdAt: new Date().toISOString(),
+      });
+    }
+
     onTaskUpdate();
   };
 
@@ -46,6 +71,8 @@ export function TaskItem({ task, account, accounts = [], onTaskUpdate }: TaskIte
     setEditDueDate(toInputValue(task.dueDate));
     setEditPriority(task.priority || 'media');
     setEditAccountId(task.accountId || '');
+    setEditPlatforms(task.platforms || []);
+    setEditRecurrence(task.recurrence || '');
     setIsEditing(true);
   };
 
@@ -58,6 +85,8 @@ export function TaskItem({ task, account, accounts = [], onTaskUpdate }: TaskIte
       dueDate: editDueDate,
       priority: editPriority,
       accountId: editAccountId || undefined,
+      platforms: editPlatforms.length > 0 ? editPlatforms : undefined,
+      recurrence: editRecurrence || undefined,
       // A rescheduled task needs to be pushed to Google Calendar again.
       ...(dueDateChanged && task.syncedToCalendar
         ? { syncedToCalendar: false, calendarEventId: undefined }
@@ -122,6 +151,35 @@ export function TaskItem({ task, account, accounts = [], onTaskUpdate }: TaskIte
               ))}
             </optgroup>
           </select>
+        </div>
+        <div className="flex items-center gap-2 flex-wrap">
+          <span className="text-[10px] font-mono uppercase tracking-wider text-slate-500">Plataformas:</span>
+          {PLATFORMS.map((p) => (
+            <button
+              key={p}
+              type="button"
+              onClick={() => toggleEditPlatform(p)}
+              className={`text-[11px] font-mono px-2.5 py-1 rounded-full border transition-all ${
+                editPlatforms.includes(p)
+                  ? PLATFORM_STYLES[p]
+                  : 'text-slate-500 bg-white/[0.02] border-white/10 hover:border-white/25'
+              }`}
+            >
+              {p}
+            </button>
+          ))}
+          <div className="flex items-center gap-1.5 ml-auto">
+            <Repeat size={13} className="text-slate-500" />
+            <select
+              value={editRecurrence}
+              onChange={(e) => setEditRecurrence(e.target.value as '' | Recurrence)}
+              className="bg-black border border-white/10 text-slate-300 px-2 py-1 rounded-full focus:outline-none text-[11px] transition-all appearance-none"
+            >
+              <option value="" className="bg-slate-900">No se repite</option>
+              <option value="daily" className="bg-slate-900">Diaria</option>
+              <option value="weekly" className="bg-slate-900">Semanal</option>
+            </select>
+          </div>
         </div>
         <div className="flex justify-end gap-2 pt-1">
           <button
@@ -193,6 +251,19 @@ export function TaskItem({ task, account, accounts = [], onTaskUpdate }: TaskIte
             <div className={`flex items-center px-2.5 py-0.5 rounded-full border font-mono text-[10px] tracking-wide ${account.type === 'internal' ? 'text-purple-300 bg-purple-500/10 border-purple-500/20' : 'text-cyan-300 bg-cyan-500/10 border-cyan-500/20'}`}>
               {account.type === 'internal' ? <Building size={12} className="mr-1" /> : <Briefcase size={12} className="mr-1" />}
               <span className="truncate max-w-[120px]">{account.name}</span>
+            </div>
+          )}
+
+          {(task.platforms || []).map((p) => (
+            <div key={p} className={`flex items-center px-2.5 py-0.5 rounded-full border font-mono text-[10px] tracking-wide ${PLATFORM_STYLES[p]}`}>
+              {p}
+            </div>
+          ))}
+
+          {task.recurrence && (
+            <div className="flex items-center gap-1 text-indigo-300 bg-indigo-500/10 border border-indigo-500/20 px-2.5 py-0.5 rounded-full font-mono text-[10px] tracking-wide">
+              <Repeat size={10} />
+              {task.recurrence === 'daily' ? 'Diaria' : 'Semanal'}
             </div>
           )}
 

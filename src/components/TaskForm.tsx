@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { db } from '../lib/db';
-import { Calendar, Plus } from 'lucide-react';
-import { Task, Account } from '../types';
+import { Calendar, Plus, Repeat } from 'lucide-react';
+import { Task, Account, Platform, PLATFORMS, PLATFORM_STYLES, Recurrence } from '../types';
 
 interface TaskFormProps {
   onTaskAdded: () => void;
@@ -15,8 +15,14 @@ export function TaskForm({ onTaskAdded, isAuthenticated, accounts = [] }: TaskFo
   const [dueDate, setDueDate] = useState('');
   const [accountId, setAccountId] = useState('');
   const [priority, setPriority] = useState<'baja' | 'media' | 'alta'>('media');
+  const [platforms, setPlatforms] = useState<Platform[]>([]);
+  const [recurrence, setRecurrence] = useState<'' | Recurrence>('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [expanded, setExpanded] = useState(false);
+
+  const togglePlatform = (p: Platform) => {
+    setPlatforms((prev) => (prev.includes(p) ? prev.filter((x) => x !== p) : [...prev, p]));
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -32,6 +38,8 @@ export function TaskForm({ onTaskAdded, isAuthenticated, accounts = [] }: TaskFo
         completed: false,
         accountId: accountId || undefined,
         priority,
+        platforms: platforms.length > 0 ? platforms : undefined,
+        recurrence: recurrence || undefined,
         createdAt: new Date().toISOString(),
       };
 
@@ -41,6 +49,8 @@ export function TaskForm({ onTaskAdded, isAuthenticated, accounts = [] }: TaskFo
       setDescription('');
       setDueDate('');
       setAccountId('');
+      setPlatforms([]);
+      setRecurrence('');
       setExpanded(false);
       onTaskAdded();
       
@@ -153,6 +163,36 @@ export function TaskForm({ onTaskAdded, isAuthenticated, accounts = [] }: TaskFo
               </optgroup>
             </select>
           )}
+        </div>
+
+        <div className="flex items-center gap-2 flex-wrap mt-3">
+          <span className="text-[10px] font-mono uppercase tracking-wider text-slate-500">Plataformas:</span>
+          {PLATFORMS.map((p) => (
+            <button
+              key={p}
+              type="button"
+              onClick={() => togglePlatform(p)}
+              className={`text-[11px] font-mono px-2.5 py-1 rounded-full border transition-all ${
+                platforms.includes(p)
+                  ? PLATFORM_STYLES[p]
+                  : 'text-slate-500 bg-white/[0.02] border-white/10 hover:border-white/25'
+              }`}
+            >
+              {p}
+            </button>
+          ))}
+          <div className="flex items-center gap-1.5 ml-auto">
+            <Repeat size={13} className="text-slate-500" />
+            <select
+              value={recurrence}
+              onChange={(e) => setRecurrence(e.target.value as '' | Recurrence)}
+              className="bg-black border border-white/10 text-slate-300 px-2 py-1 rounded-full focus:outline-none text-[11px] transition-all appearance-none"
+            >
+              <option value="" className="bg-slate-900">No se repite</option>
+              <option value="daily" className="bg-slate-900">Diaria</option>
+              <option value="weekly" className="bg-slate-900">Semanal</option>
+            </select>
+          </div>
         </div>
 
         <div className="flex items-center justify-between mt-2 pt-2 border-t border-white/5">
