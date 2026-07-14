@@ -74,7 +74,7 @@ export function TaskForm({ onTaskAdded, isAuthenticated, accounts = [] }: TaskFo
     return (
       <button 
         onClick={() => setExpanded(true)}
-        className="w-full bg-gradient-to-r from-purple-600/80 to-blue-600/80 hover:from-purple-500 hover:to-blue-500 text-white text-sm px-4 py-3 rounded-xl transition-all font-medium flex items-center justify-center gap-2 mb-2 border border-white/10 shadow-[0_0_15px_rgba(147,51,234,0.3)] backdrop-blur-md"
+        className="w-full bg-gradient-to-r from-purple-600/80 to-blue-600/80 hover:from-purple-500 hover:to-blue-500 text-white text-sm px-4 py-3 rounded-full transition-all font-medium flex items-center justify-center gap-2 mb-2 border border-white/10 shadow-[0_0_15px_rgba(147,51,234,0.3)] backdrop-blur-md"
       >
         <Plus size={18} /> Nueva Tarea
       </button>
@@ -98,7 +98,7 @@ export function TaskForm({ onTaskAdded, isAuthenticated, accounts = [] }: TaskFo
             placeholder="Título de la tarea"
             value={title}
             onChange={(e) => setTitle(e.target.value)}
-            className="w-full bg-black/20 border border-white/10 text-white placeholder-slate-500 px-3 py-2 rounded-xl focus:outline-none focus:border-purple-500/50 focus:ring-1 focus:ring-purple-500/50 text-sm transition-all"
+            className="w-full bg-black border border-white/10 text-white placeholder-slate-500 px-3 py-2 rounded-xl focus:outline-none focus:border-cyan-400/60 focus:ring-1 focus:ring-cyan-400/40 focus:shadow-[0_0_14px_rgba(6,182,212,0.25)] text-sm transition-all"
             required
           />
         </div>
@@ -108,7 +108,7 @@ export function TaskForm({ onTaskAdded, isAuthenticated, accounts = [] }: TaskFo
             placeholder="Descripción (opcional)"
             value={description}
             onChange={(e) => setDescription(e.target.value)}
-            className="w-full bg-black/20 border border-white/10 text-white placeholder-slate-500 px-3 py-2 rounded-xl focus:outline-none focus:border-purple-500/50 focus:ring-1 focus:ring-purple-500/50 text-sm h-[42px] resize-none transition-all"
+            className="w-full bg-black border border-white/10 text-white placeholder-slate-500 px-3 py-2 rounded-xl focus:outline-none focus:border-cyan-400/60 focus:ring-1 focus:ring-cyan-400/40 focus:shadow-[0_0_14px_rgba(6,182,212,0.25)] text-sm h-[42px] resize-none transition-all"
           />
           
           <input
@@ -118,7 +118,7 @@ export function TaskForm({ onTaskAdded, isAuthenticated, accounts = [] }: TaskFo
               setDueDate(e.target.value);
               requestNotificationPermission();
             }}
-            className="w-full bg-black/20 border border-white/10 text-white px-3 py-2 rounded-xl focus:outline-none focus:border-purple-500/50 focus:ring-1 focus:ring-purple-500/50 text-sm h-[42px] [color-scheme:dark] transition-all"
+            className="w-full bg-black border border-white/10 text-white px-3 py-2 rounded-xl focus:outline-none focus:border-cyan-400/60 focus:ring-1 focus:ring-cyan-400/40 focus:shadow-[0_0_14px_rgba(6,182,212,0.25)] text-sm h-[42px] [color-scheme:dark] transition-all"
             required
           />
         </div>
@@ -127,7 +127,7 @@ export function TaskForm({ onTaskAdded, isAuthenticated, accounts = [] }: TaskFo
           <select
             value={priority}
             onChange={(e) => setPriority(e.target.value as 'baja' | 'media' | 'alta')}
-            className="w-full bg-black/20 border border-white/10 text-white px-3 py-2 rounded-xl focus:outline-none focus:border-purple-500/50 focus:ring-1 focus:ring-purple-500/50 text-sm h-[42px] transition-all appearance-none"
+            className="w-full bg-black border border-white/10 text-white px-3 py-2 rounded-xl focus:outline-none focus:border-cyan-400/60 focus:ring-1 focus:ring-cyan-400/40 focus:shadow-[0_0_14px_rgba(6,182,212,0.25)] text-sm h-[42px] transition-all appearance-none"
           >
             <option value="baja" className="bg-slate-900 text-slate-300">Prioridad: Baja</option>
             <option value="media" className="bg-slate-900 text-yellow-300">Prioridad: Media</option>
@@ -138,7 +138,7 @@ export function TaskForm({ onTaskAdded, isAuthenticated, accounts = [] }: TaskFo
             <select
               value={accountId}
               onChange={(e) => setAccountId(e.target.value)}
-              className="w-full bg-black/20 border border-white/10 text-white px-3 py-2 rounded-xl focus:outline-none focus:border-purple-500/50 focus:ring-1 focus:ring-purple-500/50 text-sm h-[42px] transition-all appearance-none"
+              className="w-full bg-black border border-white/10 text-white px-3 py-2 rounded-xl focus:outline-none focus:border-cyan-400/60 focus:ring-1 focus:ring-cyan-400/40 focus:shadow-[0_0_14px_rgba(6,182,212,0.25)] text-sm h-[42px] transition-all appearance-none"
             >
               <option value="" className="bg-slate-900">Sin cuenta asociada</option>
               <optgroup label="Cuentas Internas" className="bg-slate-900 text-purple-300">
@@ -164,7 +164,7 @@ export function TaskForm({ onTaskAdded, isAuthenticated, accounts = [] }: TaskFo
           <button
             type="submit"
             disabled={isSubmitting || !title || !dueDate}
-            className="bg-gradient-to-r from-cyan-500 to-blue-500 text-white font-medium py-1.5 px-4 rounded-lg hover:from-cyan-400 hover:to-blue-400 focus:outline-none disabled:opacity-50 transition-all text-sm shadow-[0_0_10px_rgba(6,182,212,0.3)]"
+            className="bg-gradient-to-r from-cyan-500 to-blue-500 text-white font-medium py-1.5 px-5 rounded-full hover:from-cyan-400 hover:to-blue-400 focus:outline-none disabled:opacity-50 transition-all text-sm shadow-[0_0_10px_rgba(6,182,212,0.3)]"
           >
             {isSubmitting ? 'Guardando...' : 'Guardar'}
           </button>

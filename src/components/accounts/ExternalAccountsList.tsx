@@ -52,12 +52,12 @@ export function ExternalAccountsList({ accounts }: ExternalAccountsListProps) {
           value={newAccountName}
           onChange={(e) => setNewAccountName(e.target.value)}
           placeholder="Nombre del nuevo cliente..."
-          className="flex-1 bg-black/20 border border-white/10 text-white placeholder-slate-500 px-4 py-3 rounded-xl focus:outline-none focus:border-cyan-500/50 focus:ring-1 focus:ring-cyan-500/50 text-sm transition-all"
+          className="flex-1 bg-black border border-white/10 text-white placeholder-slate-500 px-4 py-3 rounded-xl focus:outline-none focus:border-cyan-400/60 focus:ring-1 focus:ring-cyan-400/40 focus:shadow-[0_0_14px_rgba(6,182,212,0.25)] text-sm transition-all"
         />
         <button
           type="submit"
           disabled={!newAccountName.trim()}
-          className="bg-gradient-to-r from-cyan-500 to-blue-500 text-white font-medium py-2 px-5 rounded-xl hover:from-cyan-400 hover:to-blue-400 focus:outline-none disabled:opacity-50 transition-all text-sm shadow-[0_0_10px_rgba(6,182,212,0.3)] flex items-center gap-2"
+          className="bg-gradient-to-r from-cyan-500 to-blue-500 text-white font-medium py-2 px-5 rounded-full hover:from-cyan-400 hover:to-blue-400 focus:outline-none disabled:opacity-50 transition-all text-sm shadow-[0_0_10px_rgba(6,182,212,0.3)] flex items-center gap-2"
         >
           <Plus size={18} /> Agregar
         </button>

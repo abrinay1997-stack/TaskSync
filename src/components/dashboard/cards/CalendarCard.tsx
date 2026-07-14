@@ -60,13 +60,13 @@ export function CalendarCard({ activeTab, isAuthenticated, pendingTasks }: Calen
           <button
             onClick={handleSync}
             disabled={syncing}
-            className="w-full bg-gradient-to-r from-cyan-500/80 to-blue-500/80 hover:from-cyan-400 hover:to-blue-400 text-white text-center py-2 rounded-xl text-xs font-bold cursor-pointer transition-all flex items-center justify-center gap-2 disabled:opacity-50 shadow-[0_0_10px_rgba(6,182,212,0.3)]"
+            className="w-full bg-gradient-to-r from-cyan-500/80 to-blue-500/80 hover:from-cyan-400 hover:to-blue-400 text-white text-center py-2 rounded-full text-xs font-bold cursor-pointer transition-all flex items-center justify-center gap-2 disabled:opacity-50 shadow-[0_0_10px_rgba(6,182,212,0.3)]"
           >
             {syncing ? <Loader2 size={14} className="animate-spin" /> : <RefreshCw size={14} />}
             {syncing ? 'Sincronizando…' : `Sincronizar${unsyncedCount ? ` (${unsyncedCount})` : ''}`}
           </button>
           {message && <p className="text-[11px] text-slate-400 text-center">{message}</p>}
-          <a href="https://calendar.google.com" target="_blank" rel="noreferrer" className="bg-white/5 border border-white/10 text-center py-2 rounded-xl text-xs font-bold text-slate-300 cursor-pointer hover:bg-white/10 transition-colors block">
+          <a href="https://calendar.google.com" target="_blank" rel="noreferrer" className="bg-white/5 border border-white/10 text-center py-2 rounded-full text-xs font-bold text-slate-300 cursor-pointer hover:bg-white/10 transition-colors block">
             VER AGENDA
           </a>
         </div>

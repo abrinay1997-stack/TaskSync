@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Task, Account } from '../../types';
 import { db } from '../../lib/db';
 import { removeTaskFromCalendar } from '../../lib/calendar';
-import { Calendar, CheckCircle, Trash2, Building, Briefcase, Pencil, Check, X } from 'lucide-react';
+import { CheckCircle, Trash2, Building, Briefcase, Pencil, Check, X } from 'lucide-react';
 import { format } from 'date-fns';
 import { es } from 'date-fns/locale';
 
@@ -81,25 +81,25 @@ export function TaskItem({ task, account, accounts = [], onTaskUpdate }: TaskIte
           onChange={(e) => setEditTitle(e.target.value)}
           placeholder="Título de la tarea"
           autoFocus
-          className="w-full bg-black/20 border border-white/10 text-white placeholder-slate-500 px-3 py-2 rounded-xl focus:outline-none focus:border-purple-500/50 focus:ring-1 focus:ring-purple-500/50 text-sm transition-all"
+          className="w-full bg-black border border-white/10 text-white placeholder-slate-500 px-3 py-2 rounded-xl focus:outline-none focus:border-cyan-400/60 focus:ring-1 focus:ring-cyan-400/40 focus:shadow-[0_0_14px_rgba(6,182,212,0.25)] text-sm transition-all"
         />
         <textarea
           value={editDescription}
           onChange={(e) => setEditDescription(e.target.value)}
           placeholder="Descripción (opcional)"
-          className="w-full bg-black/20 border border-white/10 text-white placeholder-slate-500 px-3 py-2 rounded-xl focus:outline-none focus:border-purple-500/50 focus:ring-1 focus:ring-purple-500/50 text-sm h-[60px] resize-none transition-all"
+          className="w-full bg-black border border-white/10 text-white placeholder-slate-500 px-3 py-2 rounded-xl focus:outline-none focus:border-cyan-400/60 focus:ring-1 focus:ring-cyan-400/40 focus:shadow-[0_0_14px_rgba(6,182,212,0.25)] text-sm h-[60px] resize-none transition-all"
         />
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
           <input
             type="datetime-local"
             value={editDueDate}
             onChange={(e) => setEditDueDate(e.target.value)}
-            className="w-full bg-black/20 border border-white/10 text-white px-3 py-2 rounded-xl focus:outline-none focus:border-purple-500/50 focus:ring-1 focus:ring-purple-500/50 text-sm [color-scheme:dark] transition-all"
+            className="w-full bg-black border border-white/10 text-white px-3 py-2 rounded-xl focus:outline-none focus:border-cyan-400/60 focus:ring-1 focus:ring-cyan-400/40 focus:shadow-[0_0_14px_rgba(6,182,212,0.25)] text-sm [color-scheme:dark] transition-all"
           />
           <select
             value={editPriority}
             onChange={(e) => setEditPriority(e.target.value as 'baja' | 'media' | 'alta')}
-            className="w-full bg-black/20 border border-white/10 text-white px-3 py-2 rounded-xl focus:outline-none focus:border-purple-500/50 focus:ring-1 focus:ring-purple-500/50 text-sm transition-all appearance-none"
+            className="w-full bg-black border border-white/10 text-white px-3 py-2 rounded-xl focus:outline-none focus:border-cyan-400/60 focus:ring-1 focus:ring-cyan-400/40 focus:shadow-[0_0_14px_rgba(6,182,212,0.25)] text-sm transition-all appearance-none"
           >
             <option value="baja" className="bg-slate-900 text-slate-300">Prioridad: Baja</option>
             <option value="media" className="bg-slate-900 text-yellow-300">Prioridad: Media</option>
@@ -108,7 +108,7 @@ export function TaskItem({ task, account, accounts = [], onTaskUpdate }: TaskIte
           <select
             value={editAccountId}
             onChange={(e) => setEditAccountId(e.target.value)}
-            className="w-full bg-black/20 border border-white/10 text-white px-3 py-2 rounded-xl focus:outline-none focus:border-purple-500/50 focus:ring-1 focus:ring-purple-500/50 text-sm transition-all appearance-none"
+            className="w-full bg-black border border-white/10 text-white px-3 py-2 rounded-xl focus:outline-none focus:border-cyan-400/60 focus:ring-1 focus:ring-cyan-400/40 focus:shadow-[0_0_14px_rgba(6,182,212,0.25)] text-sm transition-all appearance-none"
           >
             <option value="" className="bg-slate-900">Sin cuenta asociada</option>
             <optgroup label="Cuentas Internas" className="bg-slate-900 text-purple-300">
@@ -126,14 +126,14 @@ export function TaskItem({ task, account, accounts = [], onTaskUpdate }: TaskIte
         <div className="flex justify-end gap-2 pt-1">
           <button
             onClick={() => setIsEditing(false)}
-            className="px-3 py-1.5 text-xs text-slate-400 hover:text-white hover:bg-white/5 rounded-lg transition-colors flex items-center gap-1"
+            className="px-3 py-1.5 text-xs text-slate-400 hover:text-white hover:bg-white/5 rounded-full transition-colors flex items-center gap-1"
           >
             <X size={14} /> Cancelar
           </button>
           <button
             onClick={saveEdit}
             disabled={!editTitle.trim() || !editDueDate}
-            className="px-4 py-1.5 text-xs font-medium text-white bg-gradient-to-r from-purple-600/80 to-blue-600/80 hover:from-purple-500 hover:to-blue-500 rounded-lg transition-all flex items-center gap-1 disabled:opacity-50"
+            className="px-4 py-1.5 text-xs font-medium text-white bg-gradient-to-r from-purple-600/80 to-blue-600/80 hover:from-purple-500 hover:to-blue-500 rounded-full transition-all flex items-center gap-1 disabled:opacity-50"
           >
             <Check size={14} /> Guardar
           </button>
@@ -148,7 +148,7 @@ export function TaskItem({ task, account, accounts = [], onTaskUpdate }: TaskIte
         task.completed
           ? 'opacity-60 bg-white/[0.01] border-white/5'
           : isPastDue
-              ? 'bg-pink-500/5 border-pink-500/20 shadow-[0_0_15px_rgba(236,72,153,0.05)]'
+              ? 'bg-rose-500/5 border-rose-500/40 border-overdue'
               : 'bg-white/[0.03] border-white/10 hover:border-purple-500/30 hover:bg-white/[0.05] hover:shadow-[0_4px_20px_rgba(168,85,247,0.1)]'
       }`}
     >
@@ -176,29 +176,29 @@ export function TaskItem({ task, account, accounts = [], onTaskUpdate }: TaskIte
 
         <div className="flex items-center flex-wrap mt-1.5 text-xs gap-2">
           {task.priority && (
-            <div className={`flex items-center px-2 py-0.5 rounded border capitalize ${
-              task.priority === 'alta' ? 'text-pink-400 bg-pink-500/10 border-pink-500/20' :
-              task.priority === 'media' ? 'text-yellow-300 bg-yellow-500/10 border-yellow-500/20' :
-              'text-slate-300 bg-slate-500/10 border-slate-500/20'
+            <div className={`flex items-center px-2.5 py-0.5 rounded-full font-mono uppercase tracking-wider text-[10px] font-medium ${
+              task.priority === 'alta' ? 'bg-pink-500 text-white shadow-[0_0_12px_rgba(236,72,153,0.45)]' :
+              task.priority === 'media' ? 'bg-amber-400 text-black' :
+              'bg-cyan-400 text-black'
             }`}>
               {task.priority}
             </div>
           )}
 
-          <div className={`flex items-center px-2 py-0.5 rounded border ${isPastDue ? 'text-pink-400 bg-pink-500/10 border-pink-500/20' : task.completed ? 'text-slate-500 bg-white/5 border-white/5' : 'text-slate-300 bg-white/10 border-white/10'}`}>
+          <div className={`flex items-center px-2.5 py-0.5 rounded-full border font-mono text-[10px] tracking-wide ${isPastDue ? 'text-rose-300 bg-rose-500/10 border-rose-500/20' : task.completed ? 'text-slate-500 bg-white/5 border-white/5' : 'text-slate-300 bg-white/10 border-white/10'}`}>
             {format(new Date(task.dueDate), "d MMM, h:mm a", { locale: es })}
           </div>
 
           {account && (
-            <div className={`flex items-center px-2 py-0.5 rounded border ${account.type === 'internal' ? 'text-purple-300 bg-purple-500/10 border-purple-500/20' : 'text-cyan-300 bg-cyan-500/10 border-cyan-500/20'}`}>
+            <div className={`flex items-center px-2.5 py-0.5 rounded-full border font-mono text-[10px] tracking-wide ${account.type === 'internal' ? 'text-purple-300 bg-purple-500/10 border-purple-500/20' : 'text-cyan-300 bg-cyan-500/10 border-cyan-500/20'}`}>
               {account.type === 'internal' ? <Building size={12} className="mr-1" /> : <Briefcase size={12} className="mr-1" />}
               <span className="truncate max-w-[120px]">{account.name}</span>
             </div>
           )}
 
           {task.syncedToCalendar && (
-            <div className="flex items-center text-cyan-400 bg-cyan-500/10 border border-cyan-500/20 px-2 py-0.5 rounded">
-              <Calendar size={12} className="mr-1" />
+            <div className="flex items-center gap-1.5 text-cyan-300 bg-cyan-500/10 border border-cyan-500/20 px-2.5 py-0.5 rounded-full font-mono text-[10px] tracking-wide">
+              <span className="w-1.5 h-1.5 rounded-full bg-cyan-400 shadow-[0_0_6px_rgba(34,211,238,0.9)] dot-breathe"></span>
               Sincronizado
             </div>
           )}
