@@ -2,7 +2,9 @@ import express from "express";
 import path from "path";
 import { createServer as createViteServer } from "vite";
 import Groq from "groq-sdk";
+import type { ChatCompletionMessageParam } from "groq-sdk/resources/chat/completions";
 import dotenv from "dotenv";
+import { ADVISOR_MODEL, ADVISOR_MAX_TOKENS, buildAdvisorMessages } from "./shared/advisor";
 
 dotenv.config();
 
@@ -24,19 +26,10 @@ async function startServer() {
       const { tasks, context } = req.body;
 
       const completion = await groq.chat.completions.create({
-        messages: [
-          {
-            role: "system",
-            content: "Eres un asistente de productividad experto. Basado en las tareas del usuario, dale 2-3 consejos breves, al grano y motivadores para organizar su tiempo o mejorar su productividad."
-          },
-          {
-            role: "user",
-            content: `Aquí están mis tareas actuales: ${JSON.stringify(tasks)}. Contexto extra: ${context || 'Ninguno'}`
-          }
-        ],
-        model: "mixtral-8x7b-32768", // Groq fast model
+        messages: buildAdvisorMessages(tasks, context) as ChatCompletionMessageParam[],
+        model: ADVISOR_MODEL,
         temperature: 0.7,
-        max_tokens: 256,
+        max_tokens: ADVISOR_MAX_TOKENS,
       });
 
       res.json({ message: completion.choices[0]?.message?.content || "Sin respuesta." });

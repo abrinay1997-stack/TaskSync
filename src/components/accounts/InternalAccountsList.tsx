@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import React, { useState } from 'react';
 import { Building, Plus } from 'lucide-react';
 import { Account } from '../../types';
 import { db } from '../../lib/db';

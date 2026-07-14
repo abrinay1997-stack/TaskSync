@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import React, { useState } from 'react';
 import { Briefcase, Plus, AlertCircle } from 'lucide-react';
 import { Account } from '../../types';
 import { db } from '../../lib/db';
