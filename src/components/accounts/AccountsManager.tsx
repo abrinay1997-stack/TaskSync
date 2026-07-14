@@ -1,7 +1,6 @@
 import { Account } from '../../types';
 import { InternalAccountsList } from './InternalAccountsList';
 import { ExternalAccountsList } from './ExternalAccountsList';
-import { AITaskPlanner } from './AITaskPlanner';
 
 interface AccountsManagerProps {
   accounts: Account[];
@@ -13,7 +12,6 @@ export function AccountsManager({ accounts }: AccountsManagerProps) {
 
   return (
     <div className="space-y-6">
-      <AITaskPlanner accounts={accounts} />
       <InternalAccountsList accounts={internalAccounts} />
       <ExternalAccountsList accounts={externalAccounts} />
     </div>

@@ -268,9 +268,13 @@ export function AITaskPlanner({ accounts }: AITaskPlannerProps) {
                       onChange={(e) => updateItem(t.id, { title: e.target.value })}
                       className="w-full bg-transparent border-b border-white/10 focus:border-indigo-500/50 text-sm text-white font-medium focus:outline-none pb-1 mb-1.5 transition-all"
                     />
-                    {t.description && (
-                      <p className="text-xs text-slate-400 mb-2 line-clamp-2">{t.description}</p>
-                    )}
+                    <textarea
+                      value={t.description}
+                      onChange={(e) => updateItem(t.id, { description: e.target.value })}
+                      placeholder="Descripción (opcional)"
+                      rows={2}
+                      className="w-full bg-black/20 border border-white/10 rounded-lg px-2 py-1.5 text-xs text-slate-300 placeholder-slate-600 focus:outline-none focus:border-indigo-500/50 resize-none mb-2 transition-all"
+                    />
                     <div className="flex items-center gap-2 flex-wrap">
                       <select
                         value={t.priority}

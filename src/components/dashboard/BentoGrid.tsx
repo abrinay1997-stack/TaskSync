@@ -5,6 +5,7 @@ import { DailyTasksCard } from './cards/DailyTasksCard';
 import { DeadlinesCard } from './cards/DeadlinesCard';
 import { CalendarCard } from './cards/CalendarCard';
 import { AIAdvisor } from './AIAdvisor';
+import { AITaskPlanner } from '../accounts/AITaskPlanner';
 
 interface BentoGridProps {
   activeTab: string;
@@ -48,6 +49,10 @@ export function BentoGrid({
         isAuthenticated={isAuthenticated} 
         pendingTasks={pendingTasks} 
       />
+
+      <div className={`col-span-1 md:col-span-12 ${activeTab === 'tasks' || activeTab === 'progress' ? 'block' : 'hidden md:block'}`}>
+        <AITaskPlanner accounts={accounts} />
+      </div>
 
       <div className={`col-span-1 md:col-span-12 ${activeTab === 'tasks' || activeTab === 'progress' ? 'block' : 'hidden md:block'}`}>
         <AIAdvisor tasks={pendingTasks} />

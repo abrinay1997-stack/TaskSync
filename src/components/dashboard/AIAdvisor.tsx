@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Sparkles, Loader2 } from 'lucide-react';
+import { Brain, Loader2 } from 'lucide-react';
 import { Task } from '../../types';
 
 interface AIAdvisorProps {
@@ -45,9 +45,10 @@ export function AIAdvisor({ tasks }: AIAdvisorProps) {
   return (
     <section className="col-span-1 md:col-span-12 bg-gradient-to-br from-indigo-500/10 to-purple-500/10 backdrop-blur-2xl border border-indigo-500/20 shadow-lg rounded-3xl p-6">
       <div className="flex items-center justify-between mb-4">
-        <h2 className="text-lg font-semibold text-white flex items-center gap-2">
-          <Sparkles className="text-indigo-400" size={20} />
-          Asesor de Productividad con IA (Groq)
+        <h2 className="text-lg font-semibold text-white flex items-center gap-2" title="Consejos de productividad">
+          <span className="w-10 h-10 rounded-full bg-indigo-500/15 border border-indigo-500/30 flex items-center justify-center shadow-[0_0_12px_rgba(99,102,241,0.25)]">
+            <Brain className="text-indigo-400" size={22} />
+          </span>
         </h2>
         <button
           onClick={getAdvice}
@@ -72,7 +73,7 @@ export function AIAdvisor({ tasks }: AIAdvisorProps) {
       
       {!advice && !error && !loading && (
         <p className="text-slate-400 text-sm">
-          Presiona "Generar Consejos" para que la IA de Groq analice tus tareas y te sugiera cómo organizar tu día.
+          Presiona "Generar Consejos" para que la IA analice tus tareas y te sugiera cómo organizar tu día.
         </p>
       )}
     </section>
