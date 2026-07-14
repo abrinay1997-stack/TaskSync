@@ -4,7 +4,7 @@ import { Login } from '../Login';
 interface MobileMenuProps {
   isAuthenticated: boolean;
   activeTab: string;
-  setActiveTab: (tab: 'tasks' | 'progress' | 'schedule' | 'accounts') => void;
+  setActiveTab: (tab: 'tasks' | 'progress' | 'schedule' | 'master' | 'accounts') => void;
   mobileMenuOpen: boolean;
   setMobileMenuOpen: (open: boolean) => void;
   handleLogout: () => void;
@@ -49,6 +49,12 @@ export function MobileMenu({
           className={`text-left px-4 py-3 rounded-xl text-sm font-medium transition-colors ${activeTab === 'schedule' ? 'bg-gradient-to-r from-purple-600/80 to-blue-600/80 text-white shadow-[0_0_15px_rgba(147,51,234,0.3)] border border-white/10' : 'text-slate-300 hover:bg-white/5'}`}
         >
           Cronograma
+        </button>
+        <button
+          onClick={() => { setActiveTab('master'); setMobileMenuOpen(false); }}
+          className={`text-left px-4 py-3 rounded-xl text-sm font-medium transition-colors ${activeTab === 'master' ? 'bg-gradient-to-r from-purple-600/80 to-blue-600/80 text-white shadow-[0_0_15px_rgba(147,51,234,0.3)] border border-white/10' : 'text-slate-300 hover:bg-white/5'}`}
+        >
+          Master
         </button>
         <button
           onClick={() => { setActiveTab('accounts'); setMobileMenuOpen(false); }}
