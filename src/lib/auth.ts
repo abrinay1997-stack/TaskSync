@@ -37,10 +37,12 @@ const CLIENT_ID =
   import.meta.env.VITE_GOOGLE_CLIENT_ID ||
   '529117690569-hot49dniftkk2prs6jp26pjk82rjvjqd.apps.googleusercontent.com';
 
-// calendar.events lets us create/delete task events; the userinfo scopes give
-// us the signed-in user's name/email/photo.
+// calendar.events lets us create/delete calendar events; tasks lets us mirror
+// them into Google Tasks; the userinfo scopes give us the signed-in user's
+// name/email/photo.
 const SCOPES = [
   'https://www.googleapis.com/auth/calendar.events',
+  'https://www.googleapis.com/auth/tasks',
   'https://www.googleapis.com/auth/userinfo.email',
   'https://www.googleapis.com/auth/userinfo.profile',
 ].join(' ');
@@ -51,6 +53,7 @@ interface StoredSession {
   accessToken: string;
   expiresAt: number; // epoch milliseconds
   user: User;
+  scope: string;
 }
 
 let session: StoredSession | null = loadSession();
@@ -65,6 +68,10 @@ function loadSession(): StoredSession | null {
     const parsed = JSON.parse(raw) as StoredSession;
     // Treat tokens that expire within the next 30s as already expired.
     if (parsed.expiresAt <= Date.now() + 30_000) return null;
+    // If the app now requests more scopes than this stored token was granted
+    // (e.g. Google Tasks was added later), force a fresh consent instead of
+    // silently missing permissions.
+    if (parsed.scope !== SCOPES) return null;
     return parsed;
   } catch {
     return null;
@@ -161,7 +168,7 @@ export const googleSignIn = async () => {
         const accessToken = response.access_token;
         const expiresAt = Date.now() + (Number(response.expires_in) || 3600) * 1000;
         const user = await fetchUserInfo(accessToken);
-        saveSession({ accessToken, expiresAt, user });
+        saveSession({ accessToken, expiresAt, user, scope: SCOPES });
         onSuccessCb?.(user, accessToken);
       } catch (err) {
         console.error('Post sign-in error:', err);
