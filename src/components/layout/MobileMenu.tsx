@@ -1,4 +1,5 @@
-import { LogOut, FileText, Copy, FileJson, Upload } from 'lucide-react';
+import { LogOut, FileText, Copy, FileJson, Upload, Loader2, RefreshCw, CheckCircle2 } from 'lucide-react';
+import { useState } from 'react';
 import { Login } from '../Login';
 
 interface MobileMenuProps {
@@ -8,6 +9,7 @@ interface MobileMenuProps {
   mobileMenuOpen: boolean;
   setMobileMenuOpen: (open: boolean) => void;
   handleLogout: () => void;
+  onSyncCalendar: () => Promise<void> | void;
   onExportPDF: () => void;
   onCopyReport: () => void;
   onExportProject: () => void;
@@ -21,16 +23,56 @@ export function MobileMenu({
   mobileMenuOpen,
   setMobileMenuOpen,
   handleLogout,
+  onSyncCalendar,
   onExportPDF,
   onCopyReport,
   onExportProject,
   onImportProject
 }: MobileMenuProps) {
+  const [syncing, setSyncing] = useState(false);
+
+  const handleSync = async () => {
+    setSyncing(true);
+    try {
+      await onSyncCalendar();
+    } finally {
+      setSyncing(false);
+      setMobileMenuOpen(false);
+    }
+  };
+
   if (!mobileMenuOpen) return null;
 
   return (
     <div className="md:hidden bg-white/[0.03] backdrop-blur-2xl border border-white/10 rounded-3xl px-4 pt-2 pb-4 space-y-1 shadow-[0_8px_32px_0_rgba(0,0,0,0.3)] mb-4 relative z-20">
       {!isAuthenticated && <div className="py-2"><Login onSuccess={() => {}} /></div>}
+
+      {isAuthenticated && (
+        <div className="py-2 space-y-2">
+          <div className="flex items-center gap-2 text-xs font-semibold text-emerald-400 px-1">
+            <CheckCircle2 size={14} /> Conectado a Google Calendar
+          </div>
+          <button
+            onClick={handleSync}
+            disabled={syncing}
+            className="w-full flex items-center justify-center gap-2 bg-gradient-to-r from-cyan-500 to-blue-500 hover:from-cyan-400 hover:to-blue-400 text-white font-semibold py-3 rounded-xl transition-all shadow-[0_0_12px_rgba(6,182,212,0.35)] disabled:opacity-50"
+          >
+            {syncing ? <Loader2 size={16} className="animate-spin" /> : <RefreshCw size={16} />}
+            {syncing ? 'Sincronizando…' : 'Sincronizar con Calendar'}
+          </button>
+          <a
+            href="https://calendar.google.com"
+            target="_blank"
+            rel="noreferrer"
+            onClick={() => setMobileMenuOpen(false)}
+            className="w-full block text-center bg-white/5 border border-white/10 hover:bg-white/10 text-slate-300 font-medium py-2.5 rounded-xl transition-all text-sm"
+          >
+            Ver agenda
+          </a>
+          <div className="h-px w-full bg-white/10 my-1"></div>
+        </div>
+      )}
+
       <div className="flex flex-col gap-2 mt-2">
         <button 
           onClick={() => { setActiveTab('tasks'); setMobileMenuOpen(false); }}
