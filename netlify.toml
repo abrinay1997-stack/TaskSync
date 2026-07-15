@@ -23,6 +23,8 @@
   to = "/.netlify/functions/generate-caption"
   status = 200
 
+# Requires APIFY_API_TOKEN (and GROQ_API_KEY) set in the site's environment
+# variables; optional APIFY_ACTOR_ID overrides the default scraper actor.
 [[redirects]]
   from = "/api/analyze-social"
   to = "/.netlify/functions/analyze-social"
