@@ -7,6 +7,32 @@ import dotenv from "dotenv";
 import { ADVISOR_MODEL, ADVISOR_MAX_TOKENS, buildAdvisorMessages } from "./shared/advisor";
 import { TASK_PLANNER_MODEL, TASK_PLANNER_MAX_TOKENS, buildPlannerMessages, parsePlannedTasks } from "./shared/taskPlanner";
 import { CAPTION_MODEL, CAPTION_MAX_TOKENS, buildCaptionMessages, parseCaptionResult } from "./shared/captionGenerator";
+import { SOCIAL_ANALYZER_MODEL, SOCIAL_ANALYZER_MAX_TOKENS, buildSocialSummaryMessages, parseSocialSummary, ScrapedProfile } from "./shared/socialAnalyzer";
+
+const DEFAULT_APIFY_ACTOR = "apify~instagram-profile-scraper";
+
+function extractInstagramUsername(url: string): string | undefined {
+  try {
+    const withProtocol = url.startsWith("http") ? url : `https://${url}`;
+    return new URL(withProtocol).pathname.split("/").filter(Boolean)[0] || undefined;
+  } catch {
+    return undefined;
+  }
+}
+
+function extractScrapedProfile(item: any, username: string | undefined): ScrapedProfile {
+  const bio = item.biography ?? item.bio ?? item.description ?? "";
+  const fullName = item.fullName ?? item.full_name ?? "";
+  const followersCount = item.followersCount ?? item.followers ?? undefined;
+  const rawPosts = item.latestPosts ?? item.posts ?? item.topPosts ?? [];
+  const posts: string[] = Array.isArray(rawPosts)
+    ? rawPosts
+        .map((p: any) => (typeof p === "string" ? p : p?.caption ?? p?.text ?? ""))
+        .filter((c: string) => !!c)
+        .slice(0, 12)
+    : [];
+  return { username: item.username ?? username, fullName, bio, followersCount, posts };
+}
 
 dotenv.config();
 
@@ -101,6 +127,74 @@ async function startServer() {
     } catch (error: any) {
       console.error("Caption generator error:", error);
       res.status(500).json({ error: error.message || "Error al generar el caption." });
+    }
+  });
+
+  // Real-data social profile analyzer: Apify fetches the public profile,
+  // Groq synthesizes it into niche + description text.
+  app.post("/api/analyze-social", async (req, res) => {
+    try {
+      const apifyToken = process.env.APIFY_API_TOKEN;
+      if (!apifyToken) {
+        return res.status(401).json({ error: "APIFY_API_TOKEN is not configured" });
+      }
+      const groqKey = process.env.GROQ_API_KEY;
+      if (!groqKey) {
+        return res.status(401).json({ error: "GROQ_API_KEY is not configured" });
+      }
+
+      const { instagramUrl } = req.body;
+      if (!instagramUrl || typeof instagramUrl !== "string") {
+        return res.status(400).json({ error: "Falta el link de Instagram de la cuenta." });
+      }
+
+      const username = extractInstagramUsername(instagramUrl);
+      const actorId = process.env.APIFY_ACTOR_ID || DEFAULT_APIFY_ACTOR;
+
+      const apifyRes = await fetch(
+        `https://api.apify.com/v2/acts/${actorId}/run-sync-get-dataset-items?token=${encodeURIComponent(apifyToken)}`,
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ directUrls: [instagramUrl], resultsLimit: 12 }),
+        }
+      );
+
+      if (!apifyRes.ok) {
+        const text = await apifyRes.text().catch(() => "");
+        console.error("Apify error", apifyRes.status, text.slice(0, 300));
+        return res.status(502).json({
+          error: `No se pudo obtener datos de Instagram (Apify respondió ${apifyRes.status}). Verifica el link o intenta de nuevo.`,
+        });
+      }
+
+      const items = await apifyRes.json();
+      const first = Array.isArray(items) ? items[0] : null;
+      if (!first) {
+        return res.status(404).json({
+          error: "No se encontraron datos públicos para ese perfil. Verifica que sea público y que el link sea correcto.",
+        });
+      }
+
+      const profile = extractScrapedProfile(first, username);
+
+      const groq = new Groq({ apiKey: groqKey });
+      const completion = await groq.chat.completions.create({
+        messages: buildSocialSummaryMessages(profile) as ChatCompletionMessageParam[],
+        model: SOCIAL_ANALYZER_MODEL,
+        temperature: 0.4,
+        max_tokens: SOCIAL_ANALYZER_MAX_TOKENS,
+      });
+
+      const summary = parseSocialSummary(completion.choices[0]?.message?.content || "");
+      if (!summary) {
+        return res.status(502).json({ error: "No se pudo sintetizar el perfil analizado. Intenta de nuevo." });
+      }
+
+      res.json({ ...summary, postsAnalyzed: profile.posts.length });
+    } catch (error: any) {
+      console.error("Social analyzer error:", error);
+      res.status(500).json({ error: error.message || "Error al analizar el perfil." });
     }
   });
 
