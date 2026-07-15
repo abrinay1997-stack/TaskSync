@@ -57,6 +57,12 @@ export interface Account {
   name: string;
   type: AccountType;
   createdAt: string;
+  /** Business niche/industry, e.g. "restaurante de comida rápida". */
+  niche?: string;
+  /** What the business does, its products/services, differentiators, audience. */
+  description?: string;
+  /** Per-platform profile/link, so the AI can tell content per network apart. */
+  socialLinks?: Partial<Record<Platform, string>>;
 }
 
 export interface User {

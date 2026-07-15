@@ -7,13 +7,14 @@
 
 export const CAPTION_MODEL = 'llama-3.3-70b-versatile';
 
-export const CAPTION_MAX_TOKENS = 700;
+export const CAPTION_MAX_TOKENS = 800;
 
 export interface CaptionInput {
   topic: string;
   platform?: string;
   clientName?: string;
   niche?: string;
+  description?: string;
   tone?: string;
 }
 
@@ -28,26 +29,37 @@ interface CaptionMessage {
   content: string;
 }
 
-export function buildCaptionMessages(input: CaptionInput): CaptionMessage[] {
-  const { topic, platform, clientName, niche, tone } = input;
+const SYSTEM_PROMPT = `Eres un Director Creativo y Copywriter Senior con más de 15 años de experiencia liderando estrategias de marketing digital, redes sociales y ventas para marcas de alto rendimiento. Dominas psicología del consumidor, persuasión, storytelling, copywriting directo a la respuesta y creación de contenido disruptivo que detiene el scroll.
 
-  const system = `Eres el copywriter de redes sociales de una agencia de marketing digital. Escribes contenido en español para cuentas de clientes, listo para publicar.
+Principios que aplicas en cada pieza:
+- Gancho (hook) en las primeras 3-5 palabras: un pattern interrupt, una pregunta incómoda, una cifra sorprendente o una afirmación contraintuitiva. Nada de aperturas genéricas tipo "¿Sabías que...?".
+- Estructura persuasiva (PAS o AIDA según convenga): identificas el dolor/deseo real del público objetivo, lo agitas con especificidad, y presentas la solución/oferta de forma irresistible.
+- Disparadores psicológicos concretos: prueba social, urgencia o escasez genuina, especificidad (números, detalles reales del negocio en vez de frases vacías), curiosidad, identidad ("para quienes..."), y contraste.
+- Un único llamado a la acción claro al final, adaptado al objetivo (visitar, comprar, comentar, guardar, compartir).
+- CERO relleno genérico. Cada frase debe ganarse su lugar. Si te dan el nicho y la descripción del negocio, tienes la obligación de usar detalles concretos de esa descripción (productos, diferenciadores, ubicación, propuesta de valor) en vez de generalidades que aplicarían a cualquier negocio del rubro.
+- Adapta el registro a la plataforma: Instagram/TikTok — cercano, directo, con saltos de línea y ritmo de video corto; YouTube — más descriptivo y orientado a SEO; Facebook — conversacional, apto para una audiencia algo mayor.
 
-Reglas:
-- "title" es un gancho/título corto y llamativo (máximo 8 palabras), pensado para la primera línea o portada del post.
-- "caption" es el texto del post: 2 a 4 frases, con gancho al inicio, valor en el medio y llamada a la acción al final. Adapta el estilo a la plataforma (Instagram/TikTok: cercano y directo con saltos de línea; YouTube: descriptivo; Facebook: conversacional). Puedes usar 1-3 emojis bien puestos.
-- "hashtags" son 8 a 12 hashtags relevantes y específicos del nicho, en minúsculas, sin repetir, mezclando alcance alto y nicho. Sin el símbolo # duplicado.
+Reglas de formato:
+- "title" es un gancho/título corto (máximo 8 palabras) para la primera línea o portada del post.
+- "caption" es el texto completo del post: 2 a 5 frases siguiendo la estructura persuasiva descrita arriba. Puedes usar 1-3 emojis bien puestos, nunca de relleno.
+- "hashtags" son 8 a 12 hashtags relevantes y específicos del nicho (mezcla de alcance alto y nicho), en minúsculas, sin duplicar el símbolo #.
 - Responde ÚNICAMENTE con un objeto JSON válido (sin texto adicional ni markdown) con esta forma exacta:
 {"title":"...","caption":"...","hashtags":["#uno","#dos"]}`;
+
+export function buildCaptionMessages(input: CaptionInput): CaptionMessage[] {
+  const { topic, platform, clientName, niche, description, tone } = input;
 
   const user = `Tema del post: ${topic}
 Plataforma: ${platform || 'Instagram'}
 Cliente/cuenta: ${clientName || 'No especificado'}
-Nicho: ${niche || 'No especificado'}
-Tono deseado: ${tone || 'El que mejor funcione para el nicho'}`;
+Nicho/industria: ${niche || 'No especificado'}
+Descripción del negocio (úsala para hacer el copy específico, no genérico): ${description || 'No proporcionada'}
+Tono deseado: ${tone || 'El que mejor funcione para el nicho y la audiencia'}
+
+Escribe la pieza siguiendo tus principios de copywriting persuasivo. Responde en español.`;
 
   return [
-    { role: 'system', content: system },
+    { role: 'system', content: SYSTEM_PROMPT },
     { role: 'user', content: user },
   ];
 }

@@ -1,28 +1,42 @@
 import React, { useState } from 'react';
-import { Briefcase, Plus, AlertCircle } from 'lucide-react';
-import { Account } from '../../types';
+import { Briefcase, Plus, AlertCircle, X, Check } from 'lucide-react';
+import { Account, Platform } from '../../types';
 import { db } from '../../lib/db';
 import { AccountItem } from './AccountItem';
+import { AccountProfileFields, AccountProfileDraft } from './AccountProfileFields';
 
 interface ExternalAccountsListProps {
   accounts: Account[];
 }
 
+const emptyProfile = (): AccountProfileDraft => ({ niche: '', description: '', socialLinks: {} });
+
 export function ExternalAccountsList({ accounts }: ExternalAccountsListProps) {
-  const [newAccountName, setNewAccountName] = useState('');
+  const [expanded, setExpanded] = useState(false);
+  const [name, setName] = useState('');
+  const [profile, setProfile] = useState<AccountProfileDraft>(emptyProfile());
   const isAtExternalLimit = accounts.length >= 4;
 
   const handleAdd = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!newAccountName.trim()) return;
-    
+    if (!name.trim()) return;
+
+    const socialLinks = Object.fromEntries(
+      Object.entries(profile.socialLinks).filter(([, v]) => v && v.trim())
+    ) as Partial<Record<Platform, string>>;
+
     await db.accounts.add({
       id: crypto.randomUUID(),
-      name: newAccountName.trim(),
+      name: name.trim(),
       type: 'external',
       createdAt: new Date().toISOString(),
+      niche: profile.niche.trim() || undefined,
+      description: profile.description.trim() || undefined,
+      socialLinks: Object.keys(socialLinks).length > 0 ? socialLinks : undefined,
     });
-    setNewAccountName('');
+    setName('');
+    setProfile(emptyProfile());
+    setExpanded(false);
   };
 
   return (
@@ -46,31 +60,52 @@ export function ExternalAccountsList({ accounts }: ExternalAccountsListProps) {
         </div>
       )}
 
-      <form onSubmit={handleAdd} className="flex gap-2 mb-6">
-        <input
-          type="text"
-          value={newAccountName}
-          onChange={(e) => setNewAccountName(e.target.value)}
-          placeholder="Nombre del nuevo cliente..."
-          className="flex-1 bg-black border border-white/10 text-white placeholder-slate-500 px-4 py-3 rounded-xl focus:outline-none focus:border-cyan-400/60 focus:ring-1 focus:ring-cyan-400/40 focus:shadow-[0_0_14px_rgba(6,182,212,0.25)] text-sm transition-all"
-        />
+      {!expanded ? (
         <button
-          type="submit"
-          disabled={!newAccountName.trim()}
-          className="bg-gradient-to-r from-cyan-500 to-blue-500 text-white font-medium py-2 px-5 rounded-full hover:from-cyan-400 hover:to-blue-400 focus:outline-none disabled:opacity-50 transition-all text-sm shadow-[0_0_10px_rgba(6,182,212,0.3)] flex items-center gap-2"
+          type="button"
+          onClick={() => setExpanded(true)}
+          className="w-full mb-6 bg-gradient-to-r from-cyan-500 to-blue-500 text-white font-medium py-2.5 px-5 rounded-full hover:from-cyan-400 hover:to-blue-400 transition-all text-sm shadow-[0_0_10px_rgba(6,182,212,0.3)] flex items-center justify-center gap-2"
         >
-          <Plus size={18} /> Agregar
+          <Plus size={18} /> Agregar cliente
         </button>
-      </form>
+      ) : (
+        <form onSubmit={handleAdd} className="mb-6 bg-black/20 border border-white/10 rounded-2xl p-4 space-y-3">
+          <div className="flex items-center justify-between">
+            <h3 className="text-sm font-semibold text-white">Nuevo cliente</h3>
+            <button type="button" onClick={() => { setExpanded(false); setName(''); setProfile(emptyProfile()); }} className="text-slate-400 hover:text-white">
+              <X size={16} />
+            </button>
+          </div>
+          <input
+            type="text"
+            value={name}
+            onChange={(e) => setName(e.target.value)}
+            placeholder="Nombre del cliente..."
+            autoFocus
+            className="w-full bg-black border border-white/10 text-white placeholder-slate-500 px-4 py-3 rounded-xl focus:outline-none focus:border-cyan-400/60 focus:ring-1 focus:ring-cyan-400/40 focus:shadow-[0_0_14px_rgba(6,182,212,0.25)] text-sm transition-all"
+          />
+          <p className="text-[11px] text-slate-500">
+            Completa el nicho, la descripción y las redes para que la IA genere contenido especializado sin tener que repetir esta información cada vez.
+          </p>
+          <AccountProfileFields draft={profile} onChange={(patch) => setProfile((p) => ({ ...p, ...patch }))} />
+          <button
+            type="submit"
+            disabled={!name.trim()}
+            className="w-full bg-gradient-to-r from-cyan-500 to-blue-500 text-white font-medium py-2 px-5 rounded-full hover:from-cyan-400 hover:to-blue-400 focus:outline-none disabled:opacity-50 transition-all text-sm shadow-[0_0_10px_rgba(6,182,212,0.3)] flex items-center justify-center gap-2"
+          >
+            <Check size={18} /> Guardar cliente
+          </button>
+        </form>
+      )}
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         {accounts.map(acc => (
-          <AccountItem 
-            key={acc.id} 
-            account={acc} 
-            icon={<Briefcase size={20} />} 
-            iconBgColor="bg-cyan-500/20 shadow-[0_0_10px_rgba(34,211,238,0.2)]" 
-            iconTextColor="text-cyan-400" 
+          <AccountItem
+            key={acc.id}
+            account={acc}
+            icon={<Briefcase size={20} />}
+            iconBgColor="bg-cyan-500/20 shadow-[0_0_10px_rgba(34,211,238,0.2)]"
+            iconTextColor="text-cyan-400"
           />
         ))}
         {accounts.length === 0 && (

@@ -50,10 +50,10 @@ async function startServer() {
       }
 
       const groq = new Groq({ apiKey });
-      const { clientName, niche, notes, instagramUrl } = req.body;
+      const { clientName, niche, description, notes, instagramUrl } = req.body;
 
       const completion = await groq.chat.completions.create({
-        messages: buildPlannerMessages({ clientName, niche, notes, instagramUrl }) as ChatCompletionMessageParam[],
+        messages: buildPlannerMessages({ clientName, niche, description, notes, instagramUrl }) as ChatCompletionMessageParam[],
         model: TASK_PLANNER_MODEL,
         temperature: 0.6,
         max_tokens: TASK_PLANNER_MAX_TOKENS,
@@ -79,14 +79,14 @@ async function startServer() {
         return res.status(401).json({ error: "GROQ_API_KEY is not configured" });
       }
 
-      const { topic, platform, clientName, niche, tone } = req.body;
+      const { topic, platform, clientName, niche, description, tone } = req.body;
       if (!topic || typeof topic !== "string") {
         return res.status(400).json({ error: "Falta el tema del post." });
       }
 
       const groq = new Groq({ apiKey });
       const completion = await groq.chat.completions.create({
-        messages: buildCaptionMessages({ topic, platform, clientName, niche, tone }) as ChatCompletionMessageParam[],
+        messages: buildCaptionMessages({ topic, platform, clientName, niche, description, tone }) as ChatCompletionMessageParam[],
         model: CAPTION_MODEL,
         temperature: 0.8,
         max_tokens: CAPTION_MAX_TOKENS,
