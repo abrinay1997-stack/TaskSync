@@ -1,4 +1,5 @@
-import { Briefcase, LogOut, Menu, X, LayoutGrid } from 'lucide-react';
+import { useState } from 'react';
+import { Briefcase, LogOut, Menu, X, LayoutGrid, RefreshCw, Loader2 } from 'lucide-react';
 import { User } from '../../types';
 import { ExportMenu } from './ExportMenu';
 
@@ -11,6 +12,7 @@ interface HeaderProps {
   setMobileMenuOpen: (open: boolean) => void;
   handleLogout: () => void;
   handleLogin: () => void;
+  onSyncCalendar: () => Promise<void> | void;
   onExportPDF: () => void;
   onCopyReport: () => void;
   onExportProject: () => void;
@@ -26,11 +28,23 @@ export function Header({
   setMobileMenuOpen,
   handleLogout,
   handleLogin,
+  onSyncCalendar,
   onExportPDF,
   onCopyReport,
   onExportProject,
   onImportProject
 }: HeaderProps) {
+  const [syncing, setSyncing] = useState(false);
+
+  const handleSync = async () => {
+    setSyncing(true);
+    try {
+      await onSyncCalendar();
+    } finally {
+      setSyncing(false);
+    }
+  };
+
   return (
     <header className="flex justify-between items-end pb-4 mb-4 border-b border-white/5 relative z-50">
       <div>
@@ -91,11 +105,19 @@ export function Header({
           
           {isAuthenticated ? (
             <>
-              <div className="hidden lg:flex items-center gap-2 bg-emerald-500/10 border border-emerald-500/20 px-3 py-1.5 rounded-full backdrop-blur-md">
-                <div className="w-2 h-2 rounded-full bg-emerald-400 shadow-[0_0_8px_rgba(52,211,153,0.8)]"></div>
-                <span className="text-xs font-semibold text-emerald-400 uppercase tracking-wider">Sincronizado</span>
+              <div className="hidden lg:flex items-center gap-1 bg-emerald-500/10 border border-emerald-500/20 rounded-full backdrop-blur-md pl-3 pr-1 py-1">
+                <div className="w-2 h-2 rounded-full bg-emerald-400 shadow-[0_0_8px_rgba(52,211,153,0.8)] flex-shrink-0"></div>
+                <span className="text-xs font-semibold text-emerald-400 uppercase tracking-wider mr-1">Conectado</span>
+                <button
+                  onClick={handleSync}
+                  disabled={syncing}
+                  className="flex items-center gap-1.5 bg-gradient-to-r from-cyan-500 to-blue-500 hover:from-cyan-400 hover:to-blue-400 text-white text-xs font-semibold px-3 py-1 rounded-full transition-all shadow-[0_0_10px_rgba(6,182,212,0.3)] disabled:opacity-50"
+                >
+                  {syncing ? <Loader2 size={12} className="animate-spin" /> : <RefreshCw size={12} />}
+                  {syncing ? 'Sincronizando…' : 'Sincronizar con Calendar'}
+                </button>
               </div>
-              <button 
+              <button
                 onClick={handleLogout}
                 className="p-2 text-slate-400 hover:text-white bg-white/5 hover:bg-white/10 rounded-full transition-colors hidden md:block backdrop-blur-md border border-white/5"
                 title="Cerrar sesión"
