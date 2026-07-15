@@ -14,17 +14,22 @@ export function CalendarCard({ activeTab, isAuthenticated, pendingTasks }: Calen
   const [message, setMessage] = useState<string | null>(null);
 
   const syncedTasks = pendingTasks.filter(t => t.syncedToCalendar);
-  const unsyncedCount = pendingTasks.filter(t => !t.syncedToCalendar && !t.calendarEventId).length;
+  const unsyncedCount = pendingTasks.filter(t =>
+    (!t.syncedToCalendar && !t.calendarEventId) || (!t.syncedToTasks && !t.googleTaskId)
+  ).length;
 
   const handleSync = async () => {
     setSyncing(true);
     setMessage(null);
     try {
-      const { synced, failed } = await syncPendingTasksToCalendar(pendingTasks);
+      const { synced, failed, tasksSkipped } = await syncPendingTasksToCalendar(pendingTasks);
       if (synced === 0 && failed === 0) {
         setMessage('Todo está al día. No hay tareas nuevas por sincronizar.');
       } else {
-        setMessage(`${synced} sincronizada${synced === 1 ? '' : 's'}${failed ? ` · ${failed} con error` : ''}.`);
+        const tasksNote = tasksSkipped
+          ? ` · ${tasksSkipped} sin Google Tasks (reconecta tu cuenta para habilitarlo)`
+          : '';
+        setMessage(`${synced} sincronizada${synced === 1 ? '' : 's'}${failed ? ` · ${failed} con error` : ''}${tasksNote}.`);
       }
     } catch (err: any) {
       setMessage(err.message || 'Error al sincronizar.');

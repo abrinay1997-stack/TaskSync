@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Task, Account, Platform, PLATFORMS, PLATFORM_STYLES, Recurrence } from '../../types';
 import { db } from '../../lib/db';
-import { removeTaskFromCalendar } from '../../lib/calendar';
+import { removeTaskFromGoogle } from '../../lib/calendar';
 import { CheckCircle, Trash2, Building, Briefcase, Pencil, Check, X, Repeat } from 'lucide-react';
 import { format, addDays } from 'date-fns';
 import { es } from 'date-fns/locale';
@@ -57,9 +57,7 @@ export function TaskItem({ task, account, accounts = [], onTaskUpdate }: TaskIte
   };
 
   const deleteTask = async () => {
-    if (task.calendarEventId) {
-      removeTaskFromCalendar(task.calendarEventId).catch(console.error);
-    }
+    removeTaskFromGoogle(task).catch(console.error);
 
     await db.tasks.delete(task.id);
     onTaskUpdate();
@@ -87,13 +85,19 @@ export function TaskItem({ task, account, accounts = [], onTaskUpdate }: TaskIte
       accountId: editAccountId || undefined,
       platforms: editPlatforms.length > 0 ? editPlatforms : undefined,
       recurrence: editRecurrence || undefined,
-      // A rescheduled task needs to be pushed to Google Calendar again.
-      ...(dueDateChanged && task.syncedToCalendar
-        ? { syncedToCalendar: false, calendarEventId: undefined }
+      // A rescheduled task needs to be pushed to Google Calendar/Tasks again.
+      ...(dueDateChanged && (task.syncedToCalendar || task.syncedToTasks)
+        ? {
+            syncedToCalendar: false,
+            calendarEventId: undefined,
+            syncedToTasks: false,
+            googleTaskId: undefined,
+            googleTaskListId: undefined,
+          }
         : {}),
     });
-    if (dueDateChanged && task.calendarEventId) {
-      removeTaskFromCalendar(task.calendarEventId).catch(console.error);
+    if (dueDateChanged) {
+      removeTaskFromGoogle(task).catch(console.error);
     }
     setIsEditing(false);
     onTaskUpdate();

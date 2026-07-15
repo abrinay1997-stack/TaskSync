@@ -59,7 +59,10 @@ export default function App() {
       if (r.synced === 0 && r.failed === 0) {
         alert('Todo está al día. No hay tareas nuevas por sincronizar.');
       } else {
-        alert(`${r.synced} sincronizada${r.synced === 1 ? '' : 's'}${r.failed ? ` · ${r.failed} con error` : ''}.`);
+        const tasksNote = r.tasksSkipped
+          ? ` · ${r.tasksSkipped} sin Google Tasks (reconecta tu cuenta para habilitarlo)`
+          : '';
+        alert(`${r.synced} sincronizada${r.synced === 1 ? '' : 's'}${r.failed ? ` · ${r.failed} con error` : ''}${tasksNote}.`);
       }
     } catch (err: any) {
       alert(err.message || 'No se pudo sincronizar con Google Calendar.');

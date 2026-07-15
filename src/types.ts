@@ -43,6 +43,9 @@ export interface Task {
   completed: boolean;
   syncedToCalendar?: boolean;
   calendarEventId?: string;
+  syncedToTasks?: boolean;
+  googleTaskId?: string;
+  googleTaskListId?: string;
   createdAt: string;
   accountId?: string;
   priority?: 'baja' | 'media' | 'alta';
