@@ -84,7 +84,7 @@ export default function App() {
   };
 
   return (
-    <div className="min-h-screen bg-[#050508] text-slate-200 flex flex-col font-sans p-4 sm:p-6 lg:p-8 pb-24 md:pb-8 overflow-x-hidden relative selection:bg-purple-500/30">
+    <div className="min-h-screen bg-[#050508] text-slate-200 flex flex-col font-sans p-4 sm:p-6 lg:p-8 pb-[calc(6.5rem+env(safe-area-inset-bottom))] md:pb-8 overflow-x-hidden relative selection:bg-purple-500/30">
       <AmbientBackground />
 
       <Header

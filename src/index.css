@@ -1,5 +1,38 @@
 @import "tailwindcss";
 
+/* ---------------------------------------------------------------------------
+   Mobile / app-like behavior
+   ------------------------------------------------------------------------- */
+html {
+  padding: env(safe-area-inset-top) env(safe-area-inset-right) 0 env(safe-area-inset-left);
+  background-color: #050508;
+}
+
+body {
+  overscroll-behavior-y: none;
+  -webkit-tap-highlight-color: transparent;
+  -webkit-touch-callout: none;
+}
+
+button,
+a,
+[role="button"],
+input,
+select,
+textarea,
+label {
+  touch-action: manipulation;
+}
+
+/* iOS zooms in when a focused field's font is < 16px; force 16px on phones. */
+@media (max-width: 767px) {
+  input,
+  select,
+  textarea {
+    font-size: 16px !important;
+  }
+}
+
 /* "Lumina Sync" design system (from the Stitch project TaskSync Marketing
    Dashboard): Hanken Grotesk for display/body, JetBrains Mono for labels and
    metadata, glassmorphism over a #050508 base, purple→blue→cyan accents. */

@@ -16,7 +16,10 @@ const TABS = [
 // Bottom-anchored floating pill bar with heavy blur (Lumina Sync design).
 export function MobileTabs({ activeTab, setActiveTab }: MobileTabsProps) {
   return (
-    <nav className="md:hidden fixed bottom-4 left-4 right-4 z-50 flex gap-1 p-1.5 rounded-full bg-black/40 backdrop-blur-2xl border border-white/10 shadow-[0_8px_32px_rgba(0,0,0,0.5)]">
+    <nav
+      className="md:hidden fixed bottom-0 left-0 right-0 z-50 flex gap-1 px-2 pt-1.5 bg-black/40 backdrop-blur-2xl border-t border-white/10 shadow-[0_-8px_32px_rgba(0,0,0,0.5)]"
+      style={{ paddingBottom: 'calc(0.375rem + env(safe-area-inset-bottom))' }}
+    >
       {TABS.map(({ id, label, Icon }) => (
         <button
           key={id}
