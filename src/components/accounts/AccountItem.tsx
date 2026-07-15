@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Edit2, Trash2, Check, X, Info } from 'lucide-react';
+import { Edit2, Trash2, Check, X, Info, Sparkles, Loader2 } from 'lucide-react';
 import { Account, Platform } from '../../types';
 import { db } from '../../lib/db';
 import { AccountProfileFields, AccountProfileDraft } from './AccountProfileFields';
@@ -21,12 +21,17 @@ export function AccountItem({ account, icon, iconBgColor, iconTextColor }: Accou
   const [isEditing, setIsEditing] = useState(false);
   const [editName, setEditName] = useState(account.name);
   const [profile, setProfile] = useState<AccountProfileDraft>(toDraft(account));
+  const [analyzing, setAnalyzing] = useState(false);
+  const [analyzeError, setAnalyzeError] = useState<string | null>(null);
+  const [analyzeMessage, setAnalyzeMessage] = useState<string | null>(null);
 
   const hasProfile = Boolean(account.niche || account.description || (account.socialLinks && Object.keys(account.socialLinks).length > 0));
 
   const startEdit = () => {
     setEditName(account.name);
     setProfile(toDraft(account));
+    setAnalyzeError(null);
+    setAnalyzeMessage(null);
     setIsEditing(true);
   };
 
@@ -55,6 +60,44 @@ export function AccountItem({ account, icon, iconBgColor, iconTextColor }: Accou
     await db.accounts.delete(account.id);
   };
 
+  const analyzeSocial = async () => {
+    const instagramUrl = profile.socialLinks.Instagram;
+    if (!instagramUrl?.trim()) {
+      setAnalyzeError('Agrega primero el link de Instagram arriba.');
+      return;
+    }
+    setAnalyzing(true);
+    setAnalyzeError(null);
+    setAnalyzeMessage(null);
+    try {
+      const res = await fetch('/api/analyze-social', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ instagramUrl }),
+      });
+      let data: any;
+      try {
+        data = await res.json();
+      } catch {
+        throw new Error(`El servidor respondió ${res.status} sin datos válidos. Intenta de nuevo.`);
+      }
+      if (!res.ok) throw new Error(data.error || 'Error al analizar el perfil.');
+
+      setProfile((p) => ({
+        ...p,
+        niche: data.niche || p.niche,
+        description: data.description || p.description,
+      }));
+      setAnalyzeMessage(
+        `Perfil analizado (${data.postsAnalyzed || 0} publicaciones reales). Revisa el nicho y la descripción antes de guardar.`
+      );
+    } catch (err: any) {
+      setAnalyzeError(err.message);
+    } finally {
+      setAnalyzing(false);
+    }
+  };
+
   if (isEditing) {
     return (
       <div className="bg-white/5 border border-purple-500/50 rounded-2xl p-4 space-y-3 shadow-[0_0_15px_rgba(168,85,247,0.1)]">
@@ -66,6 +109,20 @@ export function AccountItem({ account, icon, iconBgColor, iconTextColor }: Accou
           autoFocus
         />
         <AccountProfileFields draft={profile} onChange={(patch) => setProfile((p) => ({ ...p, ...patch }))} />
+
+        <button
+          type="button"
+          onClick={analyzeSocial}
+          disabled={analyzing}
+          className="w-full flex items-center justify-center gap-2 bg-indigo-500/15 border border-indigo-500/30 text-indigo-300 text-xs font-medium py-2 rounded-full hover:bg-indigo-500/25 transition-all disabled:opacity-50"
+          title="Trae bio y publicaciones reales de Instagram (vía Apify) y las resume con IA"
+        >
+          {analyzing ? <Loader2 size={13} className="animate-spin" /> : <Sparkles size={13} />}
+          {analyzing ? 'Analizando perfil real…' : 'Analizar redes con IA'}
+        </button>
+        {analyzeError && <p className="text-red-400 text-xs">{analyzeError}</p>}
+        {analyzeMessage && <p className="text-emerald-300 text-xs">{analyzeMessage}</p>}
+
         <div className="flex justify-end gap-2">
           <button onClick={cancelEdit} className="px-3 py-1.5 text-xs text-slate-400 hover:text-white hover:bg-white/5 rounded-full transition-colors flex items-center gap-1">
             <X size={14} /> Cancelar
