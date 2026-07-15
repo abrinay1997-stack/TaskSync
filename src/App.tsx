@@ -110,6 +110,7 @@ export default function App() {
         setMobileMenuOpen={setMobileMenuOpen}
         handleLogout={handleLogout}
         handleLogin={handleLogin}
+        onSyncCalendar={handleSyncCalendar}
         onExportPDF={handleExportPDF}
         onCopyReport={handleCopyReport}
         onExportProject={handleExportProject}
