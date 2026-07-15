@@ -1,8 +1,9 @@
 // Shared logic for the AI "Content Plan" generator.
 //
-// Given a client's name/niche/notes (the LLM cannot browse the Instagram link,
-// so the URL is passed only as a reference label), Groq produces a set of
-// actionable tasks that follow the agency's 5-stage content workflow.
+// Given a client's profile (niche/description/social links), the LLM cannot
+// browse the links themselves, so they're passed only as reference labels.
+// Groq produces a set of actionable tasks that follow the agency's 5-stage
+// content workflow.
 //
 // Imported by both the Netlify Function (netlify/functions/generate-tasks.mts)
 // and the local Express dev server (server.ts).
@@ -11,7 +12,7 @@ export const TASK_PLANNER_MODEL = 'llama-3.3-70b-versatile';
 
 // Kept modest so the Groq call comfortably finishes within Netlify's ~10s
 // synchronous function timeout.
-export const TASK_PLANNER_MAX_TOKENS = 1200;
+export const TASK_PLANNER_MAX_TOKENS = 1400;
 
 // The agency's fixed content-production pipeline.
 export const PLANNER_STAGES = [
@@ -25,6 +26,7 @@ export const PLANNER_STAGES = [
 export interface PlannerInput {
   clientName: string;
   niche?: string;
+  description?: string;
   notes?: string;
   instagramUrl?: string;
 }
@@ -43,32 +45,34 @@ interface PlannerMessage {
   content: string;
 }
 
-export function buildPlannerMessages(input: PlannerInput): PlannerMessage[] {
-  const { clientName, niche, notes, instagramUrl } = input;
-
-  const system = `Eres el planificador de producción de contenido de TaskSync para una agencia de marketing digital (Juancito Ads). Generas planes de trabajo accionables para gestionar la cuenta de un cliente en redes sociales.
+const SYSTEM_PROMPT = `Eres un Estratega Senior de Marketing Digital y Crecimiento en Redes Sociales, con más de 15 años dirigiendo cuentas de agencia. Dominas copywriting persuasivo, psicología del consumidor, ventas, atracción de clientes y creación de contenido disruptivo que se diferencia de la competencia. Planificas el trabajo mensual de producción de contenido de una agencia (Juancito Ads) para sus cuentas de clientes.
 
 El flujo de trabajo SIEMPRE sigue estas 5 etapas, en este orden:
 ${PLANNER_STAGES.map((s, i) => `${i + 1}. ${s}`).join('\n')}
 
 Reglas:
 - Genera exactamente 2 tareas por cada etapa (10 tareas en total), ordenadas por etapa.
-- Cada tarea debe ser concreta y accionable (empieza con un verbo) y adaptada al nicho del cliente.
+- Cada tarea debe ser concreta, accionable (empieza con un verbo) y ESPECÍFICA al negocio: usa detalles reales del nicho y la descripción proporcionada (productos, propuesta de valor, público objetivo, temporada/ocasión, diferenciadores) en vez de tareas genéricas que servirían para cualquier cuenta. Por ejemplo, en vez de "Crear contenido de valor", escribe algo como "Grabar reel mostrando [producto/servicio concreto del negocio] resolviendo [dolor específico del cliente ideal]".
+- Aplica principios de persuasión y psicología del consumidor al definir los ángulos de contenido: prueba social, urgencia/escasez genuina, curiosidad, identidad de marca, contraste. La etapa de "Crear campañas de anuncios" debe proponer ángulos de venta concretos (oferta, dolor que resuelve, gancho), no solo "lanzar anuncio".
 - "priority" debe ser exactamente "alta", "media" o "baja".
 - "dueOffsetDays" es un entero: días desde la fecha de inicio. Las etapas posteriores llevan offsets mayores; distribuye de forma realista a lo largo de ~2 a 4 semanas.
 - Escribe en español.
 - Responde ÚNICAMENTE con un objeto JSON válido (sin texto adicional ni markdown) con esta forma exacta:
 {"tasks":[{"stage":1,"stageName":"Cronograma de contenido para redes","title":"...","description":"...","priority":"alta","dueOffsetDays":0}]}`;
 
+export function buildPlannerMessages(input: PlannerInput): PlannerMessage[] {
+  const { clientName, niche, description, notes, instagramUrl } = input;
+
   const user = `Cliente: ${clientName || 'Cliente sin nombre'}
 Nicho/industria: ${niche || 'No especificado'}
-Notas: ${notes || 'Ninguna'}
+Descripción del negocio (úsala para que cada tarea sea específica, no genérica): ${description || 'No proporcionada'}
+Notas adicionales de esta campaña: ${notes || 'Ninguna'}
 Instagram/redes (solo referencia, NO intentes analizarlo): ${instagramUrl || 'No especificado'}
 
-Genera el plan de contenido siguiendo las 5 etapas.`;
+Genera el plan de contenido siguiendo las 5 etapas, aplicando tu experiencia en marketing, copywriting y persuasión.`;
 
   return [
-    { role: 'system', content: system },
+    { role: 'system', content: SYSTEM_PROMPT },
     { role: 'user', content: user },
   ];
 }

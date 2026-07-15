@@ -96,13 +96,16 @@ export function MasterView({ accounts }: MasterViewProps) {
     setAiLoading(true);
     setError(null);
     try {
+      const draftAccount = accounts.find((a) => a.id === draft.accountId);
       const res = await fetch('/api/generate-caption', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           topic: draft.caption,
           platform: draft.platform,
-          clientName: accounts.find((a) => a.id === draft.accountId)?.name,
+          clientName: draftAccount?.name,
+          niche: draftAccount?.niche,
+          description: draftAccount?.description,
         }),
       });
       const data = await res.json();

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { PenLine, Loader2, Copy, Check } from 'lucide-react';
 import { Account, PLATFORMS, Platform } from '../../types';
 
@@ -27,6 +27,12 @@ export function CaptionGenerator({ accounts }: CaptionGeneratorProps) {
 
   const selectedAccount = accounts.find((a) => a.id === accountId);
 
+  // Auto-fill the niche from the account's saved profile; still editable.
+  useEffect(() => {
+    if (!selectedAccount) return;
+    setNiche(selectedAccount.niche || '');
+  }, [accountId]);
+
   const handleGenerate = async () => {
     if (!topic.trim()) return;
     setLoading(true);
@@ -41,6 +47,7 @@ export function CaptionGenerator({ accounts }: CaptionGeneratorProps) {
           platform,
           clientName: selectedAccount?.name,
           niche,
+          description: selectedAccount?.description,
         }),
       });
       let data: any;
@@ -81,6 +88,7 @@ export function CaptionGenerator({ accounts }: CaptionGeneratorProps) {
         </div>
         <p className="text-xs text-slate-400 mb-5">
           Escribe el tema del post y la IA genera título, caption y hashtags listos para pegar en Meta Business Suite o TikTok.
+          El nicho se autocompleta al elegir la cuenta (edítalo en Cuentas para mejores resultados).
         </p>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-3 mb-3">

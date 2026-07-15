@@ -22,14 +22,14 @@ export default async (req: Request): Promise<Response> => {
   if (!apiKey) return json({ error: 'GROQ_API_KEY is not configured' }, 401);
 
   try {
-    const { topic, platform, clientName, niche, tone } = await req.json();
+    const { topic, platform, clientName, niche, description, tone } = await req.json();
     if (!topic || typeof topic !== 'string') {
       return json({ error: 'Falta el tema del post.' }, 400);
     }
 
     const groq = new Groq({ apiKey });
     const completion = await groq.chat.completions.create({
-      messages: buildCaptionMessages({ topic, platform, clientName, niche, tone }) as ChatCompletionMessageParam[],
+      messages: buildCaptionMessages({ topic, platform, clientName, niche, description, tone }) as ChatCompletionMessageParam[],
       model: CAPTION_MODEL,
       temperature: 0.8,
       max_tokens: CAPTION_MAX_TOKENS,

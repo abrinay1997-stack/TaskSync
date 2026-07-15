@@ -22,11 +22,11 @@ export default async (req: Request): Promise<Response> => {
   if (!apiKey) return json({ error: 'GROQ_API_KEY is not configured' }, 401);
 
   try {
-    const { clientName, niche, notes, instagramUrl } = await req.json();
+    const { clientName, niche, description, notes, instagramUrl } = await req.json();
     const groq = new Groq({ apiKey });
 
     const completion = await groq.chat.completions.create({
-      messages: buildPlannerMessages({ clientName, niche, notes, instagramUrl }) as ChatCompletionMessageParam[],
+      messages: buildPlannerMessages({ clientName, niche, description, notes, instagramUrl }) as ChatCompletionMessageParam[],
       model: TASK_PLANNER_MODEL,
       temperature: 0.6,
       max_tokens: TASK_PLANNER_MAX_TOKENS,

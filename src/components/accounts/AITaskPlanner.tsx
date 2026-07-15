@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Sparkles, Loader2, Check, Trash2, CalendarClock } from 'lucide-react';
 import { addDays, format } from 'date-fns';
 import { Account, Task } from '../../types';
@@ -51,6 +51,14 @@ export function AITaskPlanner({ accounts }: AITaskPlannerProps) {
   const selectedAccount = accounts.find((a) => a.id === accountId);
   const selectedForSaveCount = preview.filter((p) => p.selected).length;
 
+  // Auto-fill niche/Instagram from the account's saved profile so the user
+  // doesn't have to retype them on every plan; still editable per-generation.
+  useEffect(() => {
+    if (!selectedAccount) return;
+    setNiche(selectedAccount.niche || '');
+    setInstagramUrl(selectedAccount.socialLinks?.Instagram || '');
+  }, [accountId]);
+
   const computeDueDate = (offsetDays: number) => {
     const base = new Date(`${startDate}T09:00`);
     return format(addDays(base, offsetDays), "yyyy-MM-dd'T'HH:mm");
@@ -68,6 +76,7 @@ export function AITaskPlanner({ accounts }: AITaskPlannerProps) {
         body: JSON.stringify({
           clientName: selectedAccount?.name || '',
           niche,
+          description: selectedAccount?.description || '',
           notes,
           instagramUrl,
         }),
@@ -141,7 +150,7 @@ export function AITaskPlanner({ accounts }: AITaskPlannerProps) {
       </div>
       <p className="text-xs text-slate-400 mb-5">
         Genera un plan de tareas para un cliente siguiendo las 5 etapas (cronograma → contenido por lotes → programación → campañas → informe).
-        La IA usa el nombre y el nicho que le des; el link de Instagram queda como referencia.
+        El nicho y el link de Instagram se autocompletan desde el perfil de la cuenta (edítalo en Cuentas para mejores resultados).
       </p>
 
       {/* Inputs */}
