@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { CalendarRange, CalendarDays, ChevronLeft, ChevronRight } from 'lucide-react';
+import { Calendar, CalendarRange, CalendarDays, ChevronLeft, ChevronRight } from 'lucide-react';
 import {
   startOfWeek,
   addWeeks,
@@ -9,17 +9,19 @@ import {
   endOfMonth,
   format,
   isSameMonth,
+  isSameDay,
 } from 'date-fns';
 import { es } from 'date-fns/locale';
 import { Task, Account } from '../../types';
 import { ScheduleDayCell } from './ScheduleDayCell';
+import { TaskList } from '../TaskList';
 
 interface ScheduleViewProps {
   allTasks: Task[];
   accounts: Account[];
 }
 
-type Mode = 'week' | 'month';
+type Mode = 'day' | 'week' | 'month';
 
 // Build the Monday-based weeks that a month spans ("Semana 1..5").
 function weeksOfMonth(monthDate: Date): Date[][] {
@@ -37,11 +39,15 @@ function weeksOfMonth(monthDate: Date): Date[][] {
 export function ScheduleView({ allTasks, accounts }: ScheduleViewProps) {
   const today = new Date();
   const [mode, setMode] = useState<Mode>('week');
+  const [dayDate, setDayDate] = useState(today);
   const [weekStart, setWeekStart] = useState(startOfWeek(today, { weekStartsOn: 1 }));
   const [monthDate, setMonthDate] = useState(startOfMonth(today));
 
   const weekDays = Array.from({ length: 7 }, (_, i) => addDays(weekStart, i));
   const monthWeeks = weeksOfMonth(monthDate);
+  const dayTasks = allTasks
+    .filter((t) => isSameDay(new Date(t.dueDate), dayDate))
+    .sort((a, b) => new Date(a.dueDate).getTime() - new Date(b.dueDate).getTime());
 
   return (
     <div className="flex-1 relative z-10 w-full max-w-6xl mx-auto space-y-4">
@@ -50,6 +56,14 @@ export function ScheduleView({ allTasks, accounts }: ScheduleViewProps) {
         <div className="flex items-center gap-2">
           <h2 className="text-xl font-semibold text-white drop-shadow-md">Cronograma</h2>
           <div className="flex gap-1 p-1 bg-white/[0.03] rounded-full border border-white/10">
+            <button
+              onClick={() => setMode('day')}
+              className={`px-3 py-1 rounded-full text-xs font-medium flex items-center gap-1.5 transition-all ${
+                mode === 'day' ? 'bg-gradient-to-r from-purple-600/80 to-blue-600/80 text-white' : 'text-slate-400 hover:text-white'
+              }`}
+            >
+              <Calendar size={13} /> Día
+            </button>
             <button
               onClick={() => setMode('week')}
               className={`px-3 py-1 rounded-full text-xs font-medium flex items-center gap-1.5 transition-all ${
@@ -71,29 +85,56 @@ export function ScheduleView({ allTasks, accounts }: ScheduleViewProps) {
 
         <div className="flex items-center gap-2">
           <button
-            onClick={() => (mode === 'week' ? setWeekStart(addWeeks(weekStart, -1)) : setMonthDate(addMonths(monthDate, -1)))}
+            onClick={() =>
+              mode === 'day'
+                ? setDayDate(addDays(dayDate, -1))
+                : mode === 'week'
+                ? setWeekStart(addWeeks(weekStart, -1))
+                : setMonthDate(addMonths(monthDate, -1))
+            }
             className="p-2 rounded-full bg-white/5 border border-white/10 text-slate-300 hover:bg-white/10 transition-colors"
           >
             <ChevronLeft size={16} />
           </button>
           <span className="text-sm font-mono text-slate-300 min-w-[160px] text-center capitalize">
-            {mode === 'week'
+            {mode === 'day'
+              ? format(dayDate, "EEEE d 'de' MMMM", { locale: es })
+              : mode === 'week'
               ? `${format(weekStart, "d MMM", { locale: es })} – ${format(addDays(weekStart, 6), "d MMM", { locale: es })}`
               : format(monthDate, 'MMMM yyyy', { locale: es })}
           </span>
           <button
-            onClick={() => (mode === 'week' ? setWeekStart(addWeeks(weekStart, 1)) : setMonthDate(addMonths(monthDate, 1)))}
+            onClick={() =>
+              mode === 'day'
+                ? setDayDate(addDays(dayDate, 1))
+                : mode === 'week'
+                ? setWeekStart(addWeeks(weekStart, 1))
+                : setMonthDate(addMonths(monthDate, 1))
+            }
             className="p-2 rounded-full bg-white/5 border border-white/10 text-slate-300 hover:bg-white/10 transition-colors"
           >
             <ChevronRight size={16} />
           </button>
-          {mode === 'week' ? (
+          {mode === 'day' ? (
+            <button onClick={() => setDayDate(today)} className="text-xs text-cyan-300 hover:text-cyan-200 px-2">Hoy</button>
+          ) : mode === 'week' ? (
             <button onClick={() => setWeekStart(startOfWeek(today, { weekStartsOn: 1 }))} className="text-xs text-cyan-300 hover:text-cyan-200 px-2">Hoy</button>
           ) : (
             <button onClick={() => setMonthDate(startOfMonth(today))} className="text-xs text-cyan-300 hover:text-cyan-200 px-2">Hoy</button>
           )}
         </div>
       </div>
+
+      {/* Day view: full task detail for a single day */}
+      {mode === 'day' && (
+        <div className="bg-white/[0.02] backdrop-blur-2xl border border-white/10 rounded-3xl p-4 md:p-6">
+          {dayTasks.length === 0 ? (
+            <div className="text-sm text-slate-500 text-center py-8">Sin tareas programadas para este día.</div>
+          ) : (
+            <TaskList tasks={dayTasks} accounts={accounts} onTaskUpdate={() => {}} />
+          )}
+        </div>
+      )}
 
       {/* Week view */}
       {mode === 'week' && (
