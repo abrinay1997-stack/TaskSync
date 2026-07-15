@@ -81,7 +81,10 @@ export function AccountItem({ account, icon, iconBgColor, iconTextColor }: Accou
       } catch {
         throw new Error(`El servidor respondió ${res.status} sin datos válidos. Intenta de nuevo.`);
       }
-      if (!res.ok) throw new Error(data.error || 'Error al analizar el perfil.');
+      if (!res.ok) {
+        const base = data.error || 'Error al analizar el perfil.';
+        throw new Error(data.apifyDetail ? `${base}\nDetalle de Apify: ${data.apifyDetail}` : base);
+      }
 
       setProfile((p) => ({
         ...p,
@@ -120,7 +123,7 @@ export function AccountItem({ account, icon, iconBgColor, iconTextColor }: Accou
           {analyzing ? <Loader2 size={13} className="animate-spin" /> : <Sparkles size={13} />}
           {analyzing ? 'Analizando perfil real…' : 'Analizar redes con IA'}
         </button>
-        {analyzeError && <p className="text-red-400 text-xs">{analyzeError}</p>}
+        {analyzeError && <p className="text-red-400 text-xs whitespace-pre-line">{analyzeError}</p>}
         {analyzeMessage && <p className="text-emerald-300 text-xs">{analyzeMessage}</p>}
 
         <div className="flex justify-end gap-2">
