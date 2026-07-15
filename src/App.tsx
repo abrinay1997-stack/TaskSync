@@ -6,6 +6,7 @@ import { useTasks } from './hooks/useTasks';
 import { useAccounts } from './hooks/useAccounts';
 import { exportToPDF, copyReportToClipboard } from './lib/export';
 import { exportProjectJSON, importProjectJSON } from './lib/projectIO';
+import { syncPendingTasksToCalendar } from './lib/calendar';
 
 // Layout & Views
 import { AmbientBackground } from './components/layout/AmbientBackground';
@@ -50,6 +51,19 @@ export default function App() {
 
   const handleLogin = () => {
     googleSignIn();
+  };
+
+  const handleSyncCalendar = async () => {
+    try {
+      const r = await syncPendingTasksToCalendar(pendingTasks);
+      if (r.synced === 0 && r.failed === 0) {
+        alert('Todo está al día. No hay tareas nuevas por sincronizar.');
+      } else {
+        alert(`${r.synced} sincronizada${r.synced === 1 ? '' : 's'}${r.failed ? ` · ${r.failed} con error` : ''}.`);
+      }
+    } catch (err: any) {
+      alert(err.message || 'No se pudo sincronizar con Google Calendar.');
+    }
   };
 
   const handleExportPDF = () => {
@@ -109,6 +123,7 @@ export default function App() {
         mobileMenuOpen={mobileMenuOpen}
         setMobileMenuOpen={setMobileMenuOpen}
         handleLogout={handleLogout}
+        onSyncCalendar={handleSyncCalendar}
         onExportPDF={handleExportPDF}
         onCopyReport={handleCopyReport}
         onExportProject={handleExportProject}
