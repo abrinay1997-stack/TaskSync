@@ -156,15 +156,23 @@ async function startServer() {
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ directUrls: [instagramUrl], resultsLimit: 12 }),
+          // Different Apify Instagram actors expect different input field
+          // names (some want `usernames`, others `directUrls`); sending both
+          // maximizes compatibility since actors ignore fields they don't use.
+          body: JSON.stringify({
+            usernames: username ? [username] : undefined,
+            directUrls: [instagramUrl],
+            resultsLimit: 12,
+          }),
         }
       );
 
       if (!apifyRes.ok) {
         const text = await apifyRes.text().catch(() => "");
-        console.error("Apify error", apifyRes.status, text.slice(0, 300));
+        console.error("Apify error", apifyRes.status, text.slice(0, 500));
         return res.status(502).json({
           error: `No se pudo obtener datos de Instagram (Apify respondió ${apifyRes.status}). Verifica el link o intenta de nuevo.`,
+          apifyDetail: text.slice(0, 500) || undefined,
         });
       }
 
