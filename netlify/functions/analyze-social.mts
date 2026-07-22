@@ -7,6 +7,7 @@ import {
   parseSocialSummary,
   ScrapedProfile,
 } from '../../shared/socialAnalyzer';
+import { isAppAccessAuthorized } from '../../shared/appAccess';
 
 const json = (body: unknown, status = 200): Response =>
   new Response(JSON.stringify(body), {
@@ -51,6 +52,10 @@ function extractProfile(item: any, username: string | undefined): ScrapedProfile
 // then asks Groq to synthesize it into niche + description text.
 export default async (req: Request): Promise<Response> => {
   if (req.method !== 'POST') return json({ error: 'Method not allowed' }, 405);
+
+  if (!isAppAccessAuthorized(req.headers.get('x-app-access-key'), process.env.APP_ACCESS_KEY)) {
+    return json({ error: 'Acceso no autorizado. Ingresa la clave de acceso de la aplicación.' }, 401);
+  }
 
   const apifyToken = process.env.APIFY_API_TOKEN;
   if (!apifyToken) return json({ error: 'APIFY_API_TOKEN is not configured' }, 401);

@@ -6,6 +6,7 @@ import {
   buildPlannerMessages,
   parsePlannedTasks,
 } from '../../shared/taskPlanner';
+import { isAppAccessAuthorized } from '../../shared/appAccess';
 
 const json = (body: unknown, status = 200): Response =>
   new Response(JSON.stringify(body), {
@@ -17,6 +18,10 @@ const json = (body: unknown, status = 200): Response =>
 // the redirect in netlify.toml. Uses the server-side GROQ_API_KEY.
 export default async (req: Request): Promise<Response> => {
   if (req.method !== 'POST') return json({ error: 'Method not allowed' }, 405);
+
+  if (!isAppAccessAuthorized(req.headers.get('x-app-access-key'), process.env.APP_ACCESS_KEY)) {
+    return json({ error: 'Acceso no autorizado. Ingresa la clave de acceso de la aplicación.' }, 401);
+  }
 
   const apiKey = process.env.GROQ_API_KEY;
   if (!apiKey) return json({ error: 'GROQ_API_KEY is not configured' }, 401);

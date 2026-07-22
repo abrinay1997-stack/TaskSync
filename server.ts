@@ -8,6 +8,7 @@ import { ADVISOR_MODEL, ADVISOR_MAX_TOKENS, buildAdvisorMessages } from "./share
 import { TASK_PLANNER_MODEL, TASK_PLANNER_MAX_TOKENS, buildPlannerMessages, parsePlannedTasks } from "./shared/taskPlanner";
 import { CAPTION_MODEL, CAPTION_MAX_TOKENS, buildCaptionMessages, parseCaptionResult } from "./shared/captionGenerator";
 import { SOCIAL_ANALYZER_MODEL, SOCIAL_ANALYZER_MAX_TOKENS, buildSocialSummaryMessages, parseSocialSummary, ScrapedProfile } from "./shared/socialAnalyzer";
+import { isAppAccessAuthorized } from "./shared/appAccess";
 
 const DEFAULT_APIFY_ACTOR = "apify~instagram-profile-scraper";
 
@@ -42,8 +43,23 @@ async function startServer() {
 
   app.use(express.json());
 
+  // Checks the entered code against the server-side APP_ACCESS_KEY so anyone
+  // who merely has the app's URL can't spend the owner's AI/scraping credits.
+  app.post("/api/verify-access", (req, res) => {
+    const accessKey = process.env.APP_ACCESS_KEY;
+    if (!accessKey) return res.status(401).json({ error: "APP_ACCESS_KEY is not configured" });
+    const { code } = req.body;
+    if (typeof code !== "string" || code !== accessKey) {
+      return res.status(401).json({ ok: false, error: "Clave incorrecta." });
+    }
+    res.json({ ok: true });
+  });
+
   // AI Advisor Endpoint via Groq
   app.post("/api/advisor", async (req, res) => {
+    if (!isAppAccessAuthorized(req.headers["x-app-access-key"], process.env.APP_ACCESS_KEY)) {
+      return res.status(401).json({ error: "Acceso no autorizado. Ingresa la clave de acceso de la aplicación." });
+    }
     try {
       const apiKey = process.env.GROQ_API_KEY;
       if (!apiKey) {
@@ -69,6 +85,9 @@ async function startServer() {
 
   // AI Content-Plan generator via Groq (5-stage workflow per client)
   app.post("/api/generate-tasks", async (req, res) => {
+    if (!isAppAccessAuthorized(req.headers["x-app-access-key"], process.env.APP_ACCESS_KEY)) {
+      return res.status(401).json({ error: "Acceso no autorizado. Ingresa la clave de acceso de la aplicación." });
+    }
     try {
       const apiKey = process.env.GROQ_API_KEY;
       if (!apiKey) {
@@ -99,6 +118,9 @@ async function startServer() {
 
   // AI caption/title/hashtag generator via Groq
   app.post("/api/generate-caption", async (req, res) => {
+    if (!isAppAccessAuthorized(req.headers["x-app-access-key"], process.env.APP_ACCESS_KEY)) {
+      return res.status(401).json({ error: "Acceso no autorizado. Ingresa la clave de acceso de la aplicación." });
+    }
     try {
       const apiKey = process.env.GROQ_API_KEY;
       if (!apiKey) {
@@ -133,6 +155,9 @@ async function startServer() {
   // Real-data social profile analyzer: Apify fetches the public profile,
   // Groq synthesizes it into niche + description text.
   app.post("/api/analyze-social", async (req, res) => {
+    if (!isAppAccessAuthorized(req.headers["x-app-access-key"], process.env.APP_ACCESS_KEY)) {
+      return res.status(401).json({ error: "Acceso no autorizado. Ingresa la clave de acceso de la aplicación." });
+    }
     try {
       const apifyToken = process.env.APIFY_API_TOKEN;
       if (!apifyToken) {

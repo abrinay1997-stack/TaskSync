@@ -3,6 +3,7 @@ import { Sparkles, Loader2, Check, Trash2, CalendarClock } from 'lucide-react';
 import { addDays, format } from 'date-fns';
 import { Account, Task } from '../../types';
 import { db } from '../../lib/db';
+import { accessKeyHeader } from '../../lib/appAccess';
 
 interface AITaskPlannerProps {
   accounts: Account[];
@@ -72,7 +73,7 @@ export function AITaskPlanner({ accounts }: AITaskPlannerProps) {
     try {
       const response = await fetch('/api/generate-tasks', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 'Content-Type': 'application/json', ...accessKeyHeader() },
         body: JSON.stringify({
           clientName: selectedAccount?.name || '',
           niche,
