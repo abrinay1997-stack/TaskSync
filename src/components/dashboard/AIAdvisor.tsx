@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Brain, Loader2 } from 'lucide-react';
 import { Task } from '../../types';
+import { accessKeyHeader } from '../../lib/appAccess';
 
 interface AIAdvisorProps {
   tasks: Task[];
@@ -22,8 +23,8 @@ export function AIAdvisor({ tasks }: AIAdvisorProps) {
     try {
       const response = await fetch('/api/advisor', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ 
+        headers: { 'Content-Type': 'application/json', ...accessKeyHeader() },
+        body: JSON.stringify({
           tasks: tasks.map(t => ({ title: t.title, priority: t.priority, completed: t.completed, dueDate: t.dueDate }))
         })
       });

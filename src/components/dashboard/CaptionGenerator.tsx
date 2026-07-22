@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { PenLine, Loader2, Copy, Check } from 'lucide-react';
 import { Account, PLATFORMS, Platform } from '../../types';
+import { accessKeyHeader } from '../../lib/appAccess';
 
 interface CaptionGeneratorProps {
   accounts: Account[];
@@ -41,7 +42,7 @@ export function CaptionGenerator({ accounts }: CaptionGeneratorProps) {
     try {
       const response = await fetch('/api/generate-caption', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 'Content-Type': 'application/json', ...accessKeyHeader() },
         body: JSON.stringify({
           topic,
           platform,

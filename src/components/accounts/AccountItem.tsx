@@ -3,6 +3,7 @@ import { Edit2, Trash2, Check, X, Info, Sparkles, Loader2 } from 'lucide-react';
 import { Account, Platform } from '../../types';
 import { db } from '../../lib/db';
 import { AccountProfileFields, AccountProfileDraft } from './AccountProfileFields';
+import { accessKeyHeader } from '../../lib/appAccess';
 
 interface AccountItemProps {
   account: Account;
@@ -72,7 +73,7 @@ export function AccountItem({ account, icon, iconBgColor, iconTextColor }: Accou
     try {
       const res = await fetch('/api/analyze-social', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 'Content-Type': 'application/json', ...accessKeyHeader() },
         body: JSON.stringify({ instagramUrl }),
       });
       let data: any;

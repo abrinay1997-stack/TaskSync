@@ -12,6 +12,7 @@ import { db } from '../../lib/db';
 import { useContent } from '../../hooks/useContent';
 import { fileToThumbnail } from '../../lib/media';
 import { exportContentPDF } from '../../lib/contentPdf';
+import { accessKeyHeader } from '../../lib/appAccess';
 
 interface MasterViewProps {
   accounts: Account[];
@@ -99,7 +100,7 @@ export function MasterView({ accounts }: MasterViewProps) {
       const draftAccount = accounts.find((a) => a.id === draft.accountId);
       const res = await fetch('/api/generate-caption', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 'Content-Type': 'application/json', ...accessKeyHeader() },
         body: JSON.stringify({
           topic: draft.caption,
           platform: draft.platform,

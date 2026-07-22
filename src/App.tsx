@@ -18,16 +18,19 @@ import { AccountsManager } from './components/accounts/AccountsManager';
 import { ScheduleView } from './components/schedule/ScheduleView';
 import { MasterView } from './components/master/MasterView';
 import { Login } from './components/Login';
+import { AccessGate } from './components/AccessGate';
+import { getAccessKey } from './lib/appAccess';
 
 export type Tab = 'tasks' | 'progress' | 'schedule' | 'master' | 'accounts';
 
 export default function App() {
+  const [accessGranted, setAccessGranted] = useState(() => !!getAccessKey());
   const [user, setUser] = useState<User | null>(null);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [activeTab, setActiveTab] = useState<Tab>('tasks');
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const importInputRef = useRef<HTMLInputElement>(null);
-  
+
   const { allTasks, pendingTasks, completedTasks } = useTasks();
   const { accounts } = useAccounts();
 
@@ -44,6 +47,10 @@ export default function App() {
     );
     return () => unsubscribe();
   }, []);
+
+  if (!accessGranted) {
+    return <AccessGate onUnlock={() => setAccessGranted(true)} />;
+  }
 
   const handleLogout = async () => {
     await logout();

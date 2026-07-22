@@ -30,6 +30,13 @@
   to = "/.netlify/functions/analyze-social"
   status = 200
 
+# Access-key gate: checks the code entered on the app's lock screen against
+# APP_ACCESS_KEY, set in the site's environment variables.
+[[redirects]]
+  from = "/api/verify-access"
+  to = "/.netlify/functions/verify-access"
+  status = 200
+
 [[redirects]]
   from = "/*"
   to = "/index.html"

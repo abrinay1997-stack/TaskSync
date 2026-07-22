@@ -1,6 +1,7 @@
 import Groq from 'groq-sdk';
 import type { ChatCompletionMessageParam } from 'groq-sdk/resources/chat/completions';
 import { ADVISOR_MODEL, ADVISOR_MAX_TOKENS, buildAdvisorMessages } from '../../shared/advisor';
+import { isAppAccessAuthorized } from '../../shared/appAccess';
 
 const json = (body: unknown, status = 200): Response =>
   new Response(JSON.stringify(body), {
@@ -13,6 +14,10 @@ const json = (body: unknown, status = 200): Response =>
 // server-side environment variables and never reaches the browser.
 export default async (req: Request): Promise<Response> => {
   if (req.method !== 'POST') return json({ error: 'Method not allowed' }, 405);
+
+  if (!isAppAccessAuthorized(req.headers.get('x-app-access-key'), process.env.APP_ACCESS_KEY)) {
+    return json({ error: 'Acceso no autorizado. Ingresa la clave de acceso de la aplicación.' }, 401);
+  }
 
   const apiKey = process.env.GROQ_API_KEY;
   if (!apiKey) return json({ error: 'GROQ_API_KEY is not configured' }, 401);
